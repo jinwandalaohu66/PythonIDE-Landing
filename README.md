@@ -103,6 +103,19 @@
 
 ---
 
+## ☕ 捐赠 / Donate
+
+如果 PythonIDE 对你有帮助，欢迎请我喝杯咖啡，支持后续开发。
+
+<p align="center">
+  <img src="docs/donate-qr.jpeg" width="200" alt="赞赏码" />
+</p>
+<p align="center">
+  <em>扫码赞赏 · Thank you for your support</em>
+</p>
+
+---
+
 ## 🙏 致谢 / Thanks
 
 感谢所有使用和反馈 PythonIDE 的开发者。  
