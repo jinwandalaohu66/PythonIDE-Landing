@@ -167,20 +167,15 @@ AI 助手深度集成到编辑器工作流中，**开箱即用，无需任何配
 
 ## 📱 截图 / Screenshots
 
-<p align="center">
-  <img src="docs/首页.png" width="160" alt="首页" />
-  <img src="docs/编辑页面.png" width="160" alt="编辑器" />
-  <img src="docs/控制台页面.png" width="160" alt="控制台" />
-  <img src="docs/AI分析.png" width="160" alt="AI 助手" />
-  <img src="docs/新建文件.png" width="160" alt="新建文件" />
-</p>
-<p align="center">
-  <img src="docs/库管理.png" width="160" alt="库管理" />
-  <img src="docs/工具箱.png" width="160" alt="工具箱" />
-  <img src="docs/html预览.png" width="160" alt="HTML 预览" />
-  <img src="docs/md文件.png" width="160" alt="Markdown" />
-  <img src="docs/设置.png" width="160" alt="设置" />
-</p>
+| 首页 | 编辑器 | 控制台 | AI 助手 | 新建文件 |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/首页.png" width="140"/> | <img src="docs/编辑页面.png" width="140"/> | <img src="docs/控制台页面.png" width="140"/> | <img src="docs/AI分析.png" width="140"/> | <img src="docs/新建文件.png" width="140"/> |
+| 文件管理、置顶、着色 | 语法高亮、快捷输入栏 | Rich 输出、多控制台 | Diff 对比、一键采纳 | 快速选择文件类型 |
+
+| 库管理 | 工具箱 | HTML 预览 | Markdown | 设置 |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/库管理.png" width="140"/> | <img src="docs/工具箱.png" width="140"/> | <img src="docs/html预览.png" width="140"/> | <img src="docs/md文件.png" width="140"/> | <img src="docs/设置.png" width="140"/> |
+| PyPI 搜索安装、150+ Wheel | 10 大开发者工具 | 全屏网页渲染、缩放 | Markdown 实时渲染 | 外观、编辑器、AI 配置 |
 
 ---
 
