@@ -2,7 +2,7 @@
   <img src="docs/icon.png" width="120" alt="PythonIDE Logo" />
 </p>
 
-<h1 align="center">PythonIDE</h1>
+<h1 align="center">Python IDE</h1>
 <h3 align="center">掌上的 Python & JavaScript 开发环境</h3>
 <p align="center">
   <strong>让编程从电脑走到手机与平板</strong> · Write, Run, Debug on iOS
@@ -29,7 +29,7 @@
 
 ---
 
-## 🌟 为什么选择 PythonIDE？
+## 🌟 为什么选择 Python IDE？
 
 > 不是把电脑版塞进手机，而是**专为触摸屏和移动场景重新设计**的编程环境。
 
