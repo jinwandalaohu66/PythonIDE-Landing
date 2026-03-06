@@ -6,6 +6,11 @@
   <meta name="description" content="Python IDE - 掌上的 Python & JavaScript 开发环境" />
   <title>Python IDE - 掌上的 Python & JavaScript 开发环境</title>
   <link rel="icon" type="image/png" href="icon.png" />
+  
+  <!-- GSAP + ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
   <style>
     :root {
       --bg: #050508;
@@ -76,6 +81,7 @@
       z-index: 100;
       background: linear-gradient(180deg, var(--nav-bg) 0%, transparent 100%);
       backdrop-filter: blur(8px);
+      background: transparent;
       transition: all 0.3s;
     }
     .nav-logo { font-weight: 700; font-size: 1.25rem; color: var(--text); }
@@ -138,35 +144,26 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      animation: fade-in-up 0.8s ease-out;
     }
     .hero .tagline {
       font-size: clamp(1.1rem, 2.5vw, 1.4rem);
       color: var(--text-muted);
       margin-bottom: 0.25rem;
-      animation: fade-in-up 0.8s ease-out 0.1s both;
     }
     .hero .sub {
       font-size: 0.95rem;
       color: var(--text-muted);
       opacity: 0.8;
       margin-bottom: 2.5rem;
-      animation: fade-in-up 0.8s ease-out 0.2s both;
     }
 
-    @keyframes fade-in-up {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ===== CTA Buttons - 炫酷交互 ===== */
+    /* ===== CTA Buttons ===== */
     .cta {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 1rem;
       margin-bottom: 2rem;
-      animation: fade-in-up 0.8s ease-out 0.3s both;
     }
     .btn {
       position: relative;
@@ -205,7 +202,6 @@
       box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255,255,255,0.2);
       border-color: var(--hover-border);
     }
-    .btn-appstore:active { transform: translateY(-2px) scale(0.98); }
 
     .btn-github {
       background: var(--card);
@@ -223,13 +219,12 @@
       color: #fff;
     }
 
-    /* Tech pills - 悬浮交互 */
+    /* Tech pills */
     .tech-stack {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 0.5rem;
-      animation: fade-in-up 0.8s ease-out 0.4s both;
     }
     .tech-pill {
       padding: 0.5rem 1rem;
@@ -298,7 +293,7 @@
       background: linear-gradient(90deg, var(--border), transparent);
     }
 
-    /* Bento Grid - 为什么选择 */
+    /* Bento Grid */
     .bento {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -335,6 +330,7 @@
     .bento-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text); }
     .bento-card p { color: var(--text-muted); font-size: 0.95rem; }
 
+    /* Why grid */
     .why-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -369,7 +365,7 @@
       font-size: 0.9rem;
     }
 
-    /* Screenshots - 交互卡片 */
+    /* Screenshots */
     .screenshots {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -419,7 +415,7 @@
     }
     .screenshot-item:hover p { transform: translateY(0); }
 
-    /* Feature tabs - 可切换 */
+    /* Feature tabs */
     .feature-tabs {
       display: flex;
       gap: 0.5rem;
@@ -450,9 +446,7 @@
     .tab-content { display: none; }
     .tab-content.active {
       display: block;
-      animation: fade-in 0.4s ease-out;
     }
-    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 
     .feature-grid {
       display: grid;
@@ -487,7 +481,7 @@
     .install-cta h2 { margin-bottom: 1rem; }
     .install-cta .btn { margin: 0.5rem; }
 
-    /* Links - 发光按钮 */
+    /* Links */
     .link-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -587,7 +581,7 @@
       <p class="sub">让编程从电脑走到手机与平板 · Write, Run, Debug on iOS</p>
       
       <div class="cta">
-        <a href="https://apps.apple.com/app/id6753987304" class="btn btn-appstore"> App Store 免费下载</a>
+        <a href="https://apps.apple.com/app/id6753987304" class="btn btn-appstore">App Store 免费下载</a>
         <a href="https://github.com/jinwandalaohu66/PythonIDE-Landing" class="btn btn-github">⭐ GitHub</a>
       </div>
       
@@ -720,7 +714,7 @@
       <section id="install" class="install-cta">
         <h2>📥 立即下载</h2>
         <p style="color: var(--text-muted); margin-bottom: 1rem;">iOS 16.2+ · iPhone / iPad · 免费</p>
-        <a href="https://apps.apple.com/app/id6753987304" class="btn btn-appstore"> App Store 免费下载</a>
+        <a href="https://apps.apple.com/app/id6753987304" class="btn btn-appstore">App Store 免费下载</a>
       </section>
 
       <section>
@@ -820,7 +814,6 @@
         h = canvas.height = window.innerHeight;
       });
 
-      // 鼠标交互 - 粒子避让
       let mouse = { x: null, y: null };
       document.addEventListener('mousemove', e => {
         mouse.x = e.clientX;
@@ -850,6 +843,113 @@
         btn.classList.add('active');
         document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
       });
+    });
+
+    // ===== GSAP + ScrollTrigger 动画 =====
+    gsap.registerPlugin(ScrollTrigger);
+
+    // section-title 从左侧滑入 + 模糊到清晰
+    gsap.utils.toArray(".section-title").forEach(title => {
+      gsap.from(title, {
+        x: -60,
+        opacity: 0,
+        filter: "blur(6px)",
+        duration: 1.2,
+        ease: "power4.out",
+        scrollTrigger: {
+          trigger: title,
+          start: "top 82%",
+          toggleActions: "play none none reverse"
+        }
+      });
+    });
+
+    // bento-card 逐个从下方出现 + stagger
+    gsap.utils.toArray(".bento-card").forEach((card, i) => {
+      gsap.from(card, {
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: card,
+          start: "top 88%",
+        },
+        delay: i * 0.1
+      });
+    });
+
+    // why-item 从下方淡入
+    gsap.utils.toArray(".why-item").forEach((item, i) => {
+      gsap.from(item, {
+        y: 30,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".why-grid",
+          start: "top 85%",
+        },
+        stagger: 0.07
+      });
+    });
+
+    // screenshot-item 从下方 + 轻微放大
+    gsap.utils.toArray(".screenshot-item").forEach((item, i) => {
+      gsap.from(item, {
+        y: 40,
+        scale: 0.94,
+        opacity: 0,
+        duration: 1.1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: item,
+          start: "top 90%",
+        },
+        delay: i * 0.06
+      });
+    });
+
+    // feature-chip 集体 stagger + 回弹
+    gsap.utils.toArray(".feature-grid").forEach(grid => {
+      gsap.from(grid.querySelectorAll(".feature-chip"), {
+        y: 35,
+        opacity: 0,
+        duration: 0.9,
+        ease: "back.out(1.6)",
+        stagger: 0.06,
+        scrollTrigger: {
+          trigger: grid,
+          start: "top 85%",
+        }
+      });
+    });
+
+    // link-card 从下方出现
+    gsap.utils.toArray(".link-card").forEach((card, i) => {
+      gsap.from(card, {
+        y: 30,
+        opacity: 0,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: card,
+          start: "top 90%",
+        },
+        delay: i * 0.05
+      });
+    });
+
+    // install-cta 整体淡入
+    gsap.from(".install-cta", {
+      opacity: 0,
+      y: 40,
+      duration: 1.2,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: ".install-cta",
+        start: "top 85%",
+      }
     });
   </script>
 </body>
