@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Python IDE - 掌上的 Python & JavaScript 开发环境" />
   <title>Python IDE - 掌上的 Python & JavaScript 开发环境</title>
-  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="icon" type="image/png" href="favicon.png" sizes="32x32" />
+  <link rel="icon" type="image/png" href="icon.png" sizes="192x192" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <style>
@@ -49,18 +50,6 @@
       color: var(--text);
       line-height: 1.7;
       overflow-x: hidden;
-    }
-
-    /* Scroll progress - 底部阅读进度，避免被误认为加载条 */
-    #scroll-progress {
-      position: fixed;
-      bottom: 0; left: 0;
-      height: 2px;
-      width: 0%;
-      background: linear-gradient(90deg, var(--border) 0%, var(--text-muted) 100%);
-      z-index: 9999;
-      transition: width 0.1s ease-out;
-      opacity: 0.7;
     }
 
     /* Lang switcher - no glass bar */
@@ -539,6 +528,37 @@
       .screenshot-item p { color: #fff; }
       .why-item .check { background: linear-gradient(135deg, #424a53, #656d76); color: #fff; }
     }
+    /* 回顶部按钮 */
+    .back-to-top {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 90;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .back-to-top.visible { opacity: 1; visibility: visible; }
+    .back-to-top:hover {
+      color: var(--text);
+      border-color: var(--hover-border);
+      background: var(--card-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .back-to-top svg { width: 22px; height: 22px; }
+
     @media (max-width: 768px) {
       .bento { grid-template-columns: 1fr; }
       .why-grid { grid-template-columns: 1fr; }
@@ -548,12 +568,15 @@
   </style>
 </head>
 <body>
-  <div id="scroll-progress"></div>
   <div class="lang-switcher">
     <button class="lang-btn active" data-lang="zh" aria-label="中文">中文</button>
     <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
   </div>
   <canvas id="particles"></canvas>
+
+  <button type="button" class="back-to-top" id="back-to-top" aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+  </button>
 
   <div class="quick-nav">
     <a href="#why" data-i18n="navWhy">为什么选择</a>
@@ -776,16 +799,16 @@
     applyLang(lang);
 
     // Scroll progress
-    const prog = document.getElementById('scroll-progress');
-    window.addEventListener('scroll', () => {
-      const sc = window.scrollY, sh = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      prog.style.width = (sc / sh * 100) + '%';
-    });
-
-    // Quick nav visibility
+    // Quick nav & back-to-top visibility
     const quickNav = document.querySelector('.quick-nav');
+    const backToTop = document.getElementById('back-to-top');
     window.addEventListener('scroll', () => {
-      quickNav.classList.toggle('visible', window.scrollY > window.innerHeight * 0.5);
+      const show = window.scrollY > window.innerHeight * 0.5;
+      quickNav.classList.toggle('visible', show);
+      backToTop.classList.toggle('visible', show);
+    });
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     // Particles
