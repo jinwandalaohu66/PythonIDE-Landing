@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 4,
-  "updated": "2026-03-18T16:08:23.869Z",
+  "data_version": 5,
+  "updated": "2026-03-18T16:31:19.267Z",
   "announcement": null,
   "categories": [
     {
@@ -287,6 +287,29 @@
       "updated": null,
       "status": "active",
       "lines": 616
+    },
+    {
+      "id": "script_mmw9d9yl",
+      "name": "节奏大师",
+      "name_en": "节奏大师",
+      "desc": "节奏大师，你能过吗",
+      "desc_en": "节奏大师，你能过吗",
+      "category": "games",
+      "file": "scripts/games/script_mmw9d9yl.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "今晚打老虎",
+      "author_en": "今晚打老虎",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-03-18",
+      "updated": null,
+      "status": "active",
+      "lines": 563
     }
   ]
 }
