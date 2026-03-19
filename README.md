@@ -531,7 +531,7 @@ w.render()
 - **应用内捐赠** — 支持 🍭 棒棒糖 / 🍗 鸡腿 / 🧋 奶茶 三个档位，捐赠后可解锁专属 App 图标
 
 <p align="center">
-  <img src="docs/赞赏码.jpg" width="200" alt="赞赏码" /><br/>
+  <img src="docs/donate-qr.jpeg" width="200" alt="赞赏码" /><br/>
   <em>扫码赞赏 · Thank you for your support ♥</em>
 </p>
 
