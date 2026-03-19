@@ -1,953 +1,1004 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Python IDE - 掌上的 Python & JavaScript 开发环境" />
-  <title>Python IDE - 掌上的 Python & JavaScript 开发环境</title>
-  <link rel="icon" type="image/png" href="favicon.png" sizes="32x32" />
-  <link rel="icon" type="image/png" href="icon.png" sizes="192x192" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <style>
-    :root {
-      --bg: #050508;
-      --card: rgba(22, 27, 34, 0.7);
-      --card-hover: rgba(45, 50, 60, 0.9);
-      --border: rgba(255, 255, 255, 0.1);
-      --text: #f0f6fc;
-      --text-muted: #8b949e;
-      --accent: #e6edf3;
-      --accent-glow: rgba(255, 255, 255, 0.25);
-      --particle-color: 255, 255, 255;
-      --logo-shadow: rgba(255, 255, 255, 0.08);
-      --title-gradient: linear-gradient(135deg, #fff 0%, #c9d1d9 50%, #8b949e 100%);
-      --hover-border: rgba(255, 255, 255, 0.3);
-      --hover-glow: rgba(255, 255, 255, 0.06);
-    }
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #f6f8fa;
-        --card: rgba(255, 255, 255, 0.9);
-        --card-hover: rgba(255, 255, 255, 1);
-        --border: rgba(31, 35, 40, 0.12);
-        --text: #1f2328;
-        --text-muted: #656d76;
-        --accent: #1f2328;
-        --accent-glow: rgba(31, 35, 40, 0.15);
-        --particle-color: 31, 35, 40;
-        --logo-shadow: rgba(31, 35, 40, 0.1);
-        --title-gradient: linear-gradient(135deg, #1f2328 0%, #424a53 50%, #656d76 100%);
-        --hover-border: rgba(31, 35, 40, 0.25);
-        --hover-glow: rgba(31, 35, 40, 0.06);
-      }
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-      overflow-x: hidden;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Python IDE - 掌上的 Python & JavaScript 开发环境</title>
+<link rel="icon" href="icon.png" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+:root {
+--bg: #050508;
+--card: rgba(22, 27, 34, 0.7);
+--card-hover: rgba(45, 50, 60, 0.9);
+--border: rgba(255, 255, 255, 0.1);
+--text: #f0f6fc;
+--text-muted: #8b949e;
+--accent: #e6edf3;
+--accent-glow: rgba(255, 255, 255, 0.25);
+--particle-color: 255, 255, 255;
+--logo-shadow: rgba(255, 255, 255, 0.08);
+--title-gradient: linear-gradient(135deg, #fff 0%, #c9d1d9 50%, #8b949e 100%);
+--hover-border: rgba(255, 255, 255, 0.3);
+--hover-glow: rgba(255, 255, 255, 0.06);
+}
+@media (prefers-color-scheme: light) {
+:root {
+--bg: #f6f8fa;
+--card: rgba(255, 255, 255, 0.9);
+--card-hover: rgba(255, 255, 255, 1);
+--border: rgba(31, 35, 40, 0.12);
+--text: #1f2328;
+--text-muted: #656d76;
+--accent: #1f2328;
+--accent-glow: rgba(31, 35, 40, 0.15);
+--particle-color: 31, 35, 40;
+--logo-shadow: rgba(31, 35, 40, 0.1);
+--title-gradient: linear-gradient(135deg, #1f2328 0%, #424a53 50%, #656d76 100%);
+--hover-border: rgba(31, 35, 40, 0.25);
+--hover-glow: rgba(31, 35, 40, 0.06);
+}
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+background: var(--bg);
+color: var(--text);
+line-height: 1.7;
+overflow-x: hidden;
+}
 
-    /* Lang switcher - no glass bar */
-    .lang-switcher {
-      position: fixed;
-      top: 1.25rem;
-      right: 1.5rem;
-      z-index: 100;
-      display: flex;
-      gap: 0.25rem;
-      opacity: 0;
-    }
-    .lang-btn {
-      padding: 0.4rem 0.75rem;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-      text-decoration: none;
-    }
-    .lang-btn:hover, .lang-btn.active {
-      color: var(--text);
-      border-color: var(--hover-border);
-      background: rgba(255,255,255,0.06);
-    }
-    .lang-btn.active { font-weight: 600; }
+.lang-switcher {
+position: fixed;
+top: 1.25rem;
+right: 1.5rem;
+z-index: 100;
+display: flex;
+gap: 0.25rem;
+opacity: 0;
+}
+.lang-btn {
+padding: 0.4rem 0.75rem;
+border-radius: 10px;
+border: 1px solid var(--border);
+background: transparent;
+color: var(--text-muted);
+font-size: 0.8rem;
+cursor: pointer;
+transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+text-decoration: none;
+}
+.lang-btn:hover, .lang-btn.active {
+color: var(--text);
+border-color: var(--hover-border);
+background: rgba(255,255,255,0.06);
+}
+.lang-btn.active { font-weight: 600; }
 
-    #particles {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: 0;
-      pointer-events: none;
-    }
-    .content { position: relative; z-index: 1; }
+#particles {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+z-index: 0;
+pointer-events: none;
+}
+.content { position: relative; z-index: 1; }
 
-    /* Hero */
-    .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 4rem 1.5rem 6rem;
-      position: relative;
-    }
-    .hero .logo-wrap {
-      position: relative;
-      margin-bottom: 2rem;
-    }
-    .hero .logo-wrap::before {
-      content: '';
-      position: absolute;
-      inset: -30px;
-      background: radial-gradient(circle at 50% 50%, var(--accent-glow) 0%, transparent 60%);
-      opacity: 0;
-      filter: blur(50px);
-      animation: hero-glow 4s ease-in-out 1.5s infinite;
-    }
-    @keyframes hero-glow {
-      0%, 100% { opacity: 0.2; transform: scale(0.95); }
-      50% { opacity: 0.5; transform: scale(1.1); }
-    }
-    .hero img.logo {
-      width: 140px;
-      height: 140px;
-      border-radius: 32px;
-      position: relative;
-      box-shadow: 0 0 80px var(--logo-shadow), 0 24px 60px rgba(0,0,0,0.25);
-      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s;
-    }
-    .hero img.logo:hover {
-      transform: scale(1.06) rotate(3deg);
-      box-shadow: 0 0 100px var(--logo-shadow), 0 30px 80px rgba(0,0,0,0.35);
-    }
-    .hero h1 {
-      font-size: clamp(2.5rem, 6vw, 4rem);
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      background: var(--title-gradient);
-      background-size: 200% auto;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      animation: title-shimmer 6s linear infinite;
-    }
-    @keyframes title-shimmer {
-      0% { background-position: 0% center; }
-      100% { background-position: 200% center; }
-    }
-    .hero .tagline { font-size: clamp(1.1rem, 2.5vw, 1.4rem); color: var(--text-muted); margin-bottom: 0.25rem; }
-    .hero .sub { font-size: 0.95rem; color: var(--text-muted); opacity: 0.85; margin-bottom: 2.5rem; }
+.hero {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding: 4rem 1.5rem 6rem;
+position: relative;
+}
+.hero .logo-wrap {
+position: relative;
+margin-bottom: 2rem;
+}
+.hero .logo-wrap::before {
+content: '';
+position: absolute;
+inset: -30px;
+background: radial-gradient(circle at 50% 50%, var(--accent-glow) 0%, transparent 60%);
+opacity: 0;
+filter: blur(50px);
+animation: hero-glow 4s ease-in-out 1.5s infinite;
+}
+@keyframes hero-glow {
+0%, 100% { opacity: 0.2; transform: scale(0.95); }
+50% { opacity: 0.5; transform: scale(1.1); }
+}
+.hero img.logo {
+width: 140px;
+height: 140px;
+border-radius: 32px;
+position: relative;
+box-shadow: 0 0 80px var(--logo-shadow), 0 24px 60px rgba(0,0,0,0.25);
+transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.5s;
+}
+.hero img.logo:hover {
+transform: scale(1.06) rotate(3deg);
+box-shadow: 0 0 100px var(--logo-shadow), 0 30px 80px rgba(0,0,0,0.35);
+}
+.hero h1 {
+font-size: clamp(2.5rem, 6vw, 4rem);
+font-weight: 700;
+margin-bottom: 0.5rem;
+background: var(--title-gradient);
+background-size: 200% auto;
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+animation: title-shimmer 6s linear infinite;
+}
+@keyframes title-shimmer {
+0% { background-position: 0% center; }
+100% { background-position: 200% center; }
+}
+.hero .tagline { font-size: clamp(1.1rem, 2.5vw, 1.4rem); color: var(--text-muted); margin-bottom: 0.25rem; }
+.hero .sub { font-size: 0.95rem; color: var(--text-muted); opacity: 0.85; margin-bottom: 2.5rem; }
 
-    /* CTA */
-    .cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 2rem; }
-    .btn {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 1rem 2rem;
-      border-radius: 14px;
-      font-weight: 600;
-      font-size: 1rem;
-      text-decoration: none;
-      overflow: hidden;
-      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s, border-color 0.3s;
-      cursor: pointer;
-    }
-    .btn:active { transform: scale(0.97); }
-    .btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-    .btn:hover::before { opacity: 1; }
-    .btn-appstore {
-      background: linear-gradient(135deg, #000 0%, #1a1a2e 100%);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,0.2);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-    }
-    .btn-appstore::before { background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%); }
-    .btn-appstore:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 24px 56px rgba(0,0,0,0.5), 0 0 48px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.2);
-      border-color: var(--hover-border);
-    }
-    .btn-github {
-      background: var(--card);
-      color: var(--text);
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-    }
-    .btn-github::before { background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%); }
-    .btn-github:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 24px 50px rgba(0,0,0,0.35), 0 0 36px rgba(255,255,255,0.08);
-      border-color: var(--hover-border);
-      color: #fff;
-    }
+.cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-bottom: 2rem; }
+.btn {
+position: relative;
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+padding: 1rem 2rem;
+border-radius: 14px;
+font-weight: 600;
+font-size: 1rem;
+text-decoration: none;
+overflow: hidden;
+transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s, border-color 0.3s;
+cursor: pointer;
+}
+.btn:active { transform: scale(0.97); }
+.btn::before {
+content: '';
+position: absolute;
+inset: 0;
+opacity: 0;
+transition: opacity 0.4s;
+}
+.btn:hover::before { opacity: 1; }
+.btn-appstore {
+background: linear-gradient(135deg, #000 0%, #1a1a2e 100%);
+color: #fff;
+border: 1px solid rgba(255,255,255,0.2);
+box-shadow: 0 4px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.btn-appstore::before { background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 50%); }
+.btn-appstore:hover {
+transform: translateY(-5px) scale(1.02);
+box-shadow: 0 24px 56px rgba(0,0,0,0.5), 0 0 48px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.2);
+border-color: var(--hover-border);
+}
+.btn-github {
+background: var(--card);
+color: var(--text);
+border: 1px solid var(--border);
+box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.btn-github::before { background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 50%); }
+.btn-github:hover {
+transform: translateY(-5px) scale(1.02);
+box-shadow: 0 24px 50px rgba(0,0,0,0.35), 0 0 36px rgba(255,255,255,0.08);
+border-color: var(--hover-border);
+color: #fff;
+}
 
-    .tech-stack { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
-    .tech-pill {
-      padding: 0.5rem 1rem;
-      background: var(--card);
-      border-radius: 50px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      cursor: default;
-    }
-    .tech-pill:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text);
-      border-color: var(--hover-border);
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.06);
-    }
+.tech-stack { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+.tech-pill {
+padding: 0.5rem 1rem;
+background: var(--card);
+border-radius: 50px;
+font-size: 0.8rem;
+color: var(--text-muted);
+border: 1px solid var(--border);
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+cursor: default;
+}
+.tech-pill:hover {
+background: rgba(255, 255, 255, 0.08);
+color: var(--text);
+border-color: var(--hover-border);
+transform: translateY(-3px) scale(1.02);
+box-shadow: 0 8px 24px rgba(255, 255, 255, 0.06);
+}
 
-    .scroll-hint {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      opacity: 0;
-    }
-    .scroll-hint span {
-      display: block;
-      width: 26px;
-      height: 42px;
-      border: 2px solid var(--border);
-      border-radius: 14px;
-      position: relative;
-    }
-    .scroll-hint span::after {
-      content: '';
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 10px;
-      background: var(--text-muted);
-      border-radius: 2px;
-      animation: scroll-dot 2.2s ease-in-out infinite;
-    }
-    @keyframes scroll-dot {
-      0%, 20% { opacity: 1; top: 8px; }
-      80%, 100% { opacity: 0; top: 24px; }
-    }
+.scroll-hint {
+position: absolute;
+bottom: 2rem;
+left: 50%;
+transform: translateX(-50%);
+opacity: 0;
+}
+.scroll-hint span {
+display: block;
+width: 26px;
+height: 42px;
+border: 2px solid var(--border);
+border-radius: 14px;
+position: relative;
+}
+.scroll-hint span::after {
+content: '';
+position: absolute;
+top: 8px;
+left: 50%;
+transform: translateX(-50%);
+width: 4px;
+height: 10px;
+background: var(--text-muted);
+border-radius: 2px;
+animation: scroll-dot 2.2s ease-in-out infinite;
+}
+@keyframes scroll-dot {
+0%, 20% { opacity: 1; top: 8px; }
+80%, 100% { opacity: 0; top: 24px; }
+}
 
-    /* Sections */
-    .container { max-width: 1100px; margin: 0 auto; padding: 5rem 2rem; }
-    .section-title {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 2rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .section-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, var(--border), transparent);
-    }
+.container { max-width: 1100px; margin: 0 auto; padding: 5rem 2rem; }
+.section-title {
+font-size: 2rem;
+font-weight: 700;
+margin-bottom: 2rem;
+display: flex;
+align-items: center;
+gap: 0.75rem;
+}
+.section-title::after {
+content: '';
+flex: 1;
+height: 1px;
+background: linear-gradient(90deg, var(--border), transparent);
+}
 
-    /* Bento */
-    .bento {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-      margin-bottom: 2rem;
-    }
-    .bento-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 2rem;
-      backdrop-filter: blur(20px);
-      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    .bento-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, rgba(255,255,255,0.5), rgba(255,255,255,0.15));
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-    .bento-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      background: var(--card-hover);
-      border-color: var(--hover-border);
-      box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 48px rgba(255,255,255,0.06);
-    }
-    .bento-card:hover::before { opacity: 1; }
-    .bento-card .icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
-    .bento-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text); }
-    .bento-card p { color: var(--text-muted); font-size: 0.95rem; }
+.bento {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 1.25rem;
+margin-bottom: 2rem;
+}
+.bento-card {
+background: var(--card);
+border: 1px solid var(--border);
+border-radius: 20px;
+padding: 2rem;
+backdrop-filter: blur(20px);
+transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+position: relative;
+overflow: hidden;
+}
+.bento-card::before {
+content: '';
+position: absolute;
+top: 0; left: 0; right: 0;
+height: 2px;
+background: linear-gradient(90deg, rgba(255,255,255,0.5), rgba(255,255,255,0.15));
+opacity: 0;
+transition: opacity 0.4s;
+}
+.bento-card:hover {
+transform: translateY(-8px) scale(1.02);
+background: var(--card-hover);
+border-color: var(--hover-border);
+box-shadow: 0 24px 64px rgba(0,0,0,0.4), 0 0 48px rgba(255,255,255,0.06);
+}
+.bento-card:hover::before { opacity: 1; }
+.bento-card .icon { font-size: 1.5rem; margin-bottom: 0.75rem; }
+.bento-card h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text); }
+.bento-card p { color: var(--text-muted); font-size: 0.95rem; }
 
-    .why-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-top: 0;
-    }
-    .why-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 1.25rem;
-      background: var(--card);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .why-item:hover {
-      border-color: var(--hover-border);
-      background: var(--card-hover);
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
-    }
-    .why-item .check {
-      width: 28px;
-      height: 28px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(200,200,210,0.8));
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      font-size: 0.9rem;
-    }
+.why-grid {
+display: grid;
+grid-template-columns: repeat(4, 1fr);
+gap: 1rem;
+margin-top: 0;
+}
+.why-item {
+display: flex;
+align-items: center;
+gap: 1rem;
+padding: 1rem 1.25rem;
+background: var(--card);
+border-radius: 16px;
+border: 1px solid var(--border);
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.why-item:hover {
+border-color: var(--hover-border);
+background: var(--card-hover);
+transform: translateY(-3px);
+box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+}
+.why-item .check {
+width: 28px;
+height: 28px;
+background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(200,200,210,0.8));
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+font-size: 0.9rem;
+}
 
-    .screenshots {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1.5rem;
-      margin: 2rem 0;
-    }
-    .screenshot-item {
-      position: relative;
-      border-radius: 20px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .screenshot-item::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%);
-      opacity: 0;
-      transition: opacity 0.4s;
-      z-index: 1;
-    }
-    .screenshot-item:hover {
-      transform: translateY(-10px) scale(1.03);
-      box-shadow: 0 36px 80px rgba(0,0,0,0.5), 0 0 64px rgba(255,255,255,0.08);
-    }
-    .screenshot-item:hover::before { opacity: 1; }
-    .screenshot-item img {
-      width: 100%;
-      max-width: 260px;
-      margin: 0 auto;
-      display: block;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .screenshot-item:hover img { transform: scale(1.05); }
-    .screenshot-item p {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 1.5rem 1rem 1rem;
-      color: #fff;
-      font-size: 0.9rem;
-      transform: translateY(100%);
-      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      z-index: 2;
-    }
-    .screenshot-item:hover p { transform: translateY(0); }
+.screenshots {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+gap: 1.5rem;
+margin: 2rem 0;
+}
+.screenshot-item {
+position: relative;
+border-radius: 20px;
+overflow: hidden;
+cursor: pointer;
+transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.screenshot-item::before {
+content: '';
+position: absolute;
+inset: 0;
+background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%);
+opacity: 0;
+transition: opacity 0.4s;
+z-index: 1;
+}
+.screenshot-item:hover {
+transform: translateY(-10px) scale(1.03);
+box-shadow: 0 36px 80px rgba(0,0,0,0.5), 0 0 64px rgba(255,255,255,0.08);
+}
+.screenshot-item:hover::before { opacity: 1; }
+.screenshot-item img {
+width: 100%;
+max-width: 260px;
+margin: 0 auto;
+display: block;
+border-radius: 16px;
+border: 1px solid var(--border);
+transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.screenshot-item:hover img { transform: scale(1.05); }
+.screenshot-item p {
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+padding: 1.5rem 1rem 1rem;
+color: #fff;
+font-size: 0.9rem;
+transform: translateY(100%);
+transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+z-index: 2;
+}
+.screenshot-item:hover p { transform: translateY(0); }
 
-    .feature-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-    .tab-btn {
-      padding: 0.6rem 1.2rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .tab-btn:hover { color: var(--text); border-color: var(--hover-border); background: var(--card-hover); }
-    .tab-btn.active { background: var(--card-hover); color: var(--text); border-color: var(--hover-border); box-shadow: 0 0 24px var(--hover-glow); }
-    .tab-content {
-      display: none;
-      opacity: 0;
-    }
-    .tab-content.active {
-      display: block;
-      opacity: 1;
-    }
+.feature-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab-btn {
+padding: 0.6rem 1.2rem;
+border-radius: 12px;
+border: 1px solid var(--border);
+background: var(--card);
+color: var(--text-muted);
+font-size: 0.9rem;
+cursor: pointer;
+transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.tab-btn:hover { color: var(--text); border-color: var(--hover-border); background: var(--card-hover); }
+.tab-btn.active { background: var(--card-hover); color: var(--text); border-color: var(--hover-border); box-shadow: 0 0 24px var(--hover-glow); }
+.tab-content {
+display: none;
+opacity: 0;
+}
+.tab-content.active {
+display: block;
+opacity: 1;
+}
 
-    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
-    .feature-chip {
-      padding: 1rem 1.25rem;
-      background: var(--card);
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      text-align: center;
-      color: var(--text);
-    }
-    .feature-chip:hover {
-      border-color: var(--hover-border);
-      background: var(--card-hover);
-      transform: scale(1.03) translateY(-2px);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.3);
-    }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+.feature-chip {
+padding: 1rem 1.25rem;
+background: var(--card);
+border-radius: 12px;
+border: 1px solid var(--border);
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+text-align: center;
+color: var(--text);
+}
+.feature-chip:hover {
+border-color: var(--hover-border);
+background: var(--card-hover);
+transform: scale(1.03) translateY(-2px);
+box-shadow: 0 12px 36px rgba(0,0,0,0.3);
+}
 
-    .install-cta {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
-      border-radius: 24px;
-      margin: 4rem 0;
-      border: 1px solid var(--border);
-    }
-    .install-cta h2 { margin-bottom: 1rem; }
-    .install-cta .btn { margin: 0.5rem; }
+.install-cta {
+text-align: center;
+padding: 4rem 2rem;
+background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
+border-radius: 24px;
+margin: 4rem 0;
+border: 1px solid var(--border);
+}
+.install-cta h2 { margin-bottom: 1rem; }
+.install-cta .btn { margin: 0.5rem; }
 
-    .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    .link-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 1.25rem;
-      background: var(--card);
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      color: var(--text);
-      text-decoration: none;
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .link-card:hover {
-      border-color: var(--hover-border);
-      background: rgba(255,255,255,0.06);
-      transform: translateY(-5px);
-      box-shadow: 0 12px 40px rgba(255,255,255,0.08);
-    }
-    .link-card span { color: var(--text); font-weight: 600; display: block; margin-bottom: 0.25rem; }
+.link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.link-card {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding: 1.25rem;
+background: var(--card);
+border-radius: 16px;
+border: 1px solid var(--border);
+color: var(--text);
+text-decoration: none;
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.link-card:hover {
+border-color: var(--hover-border);
+background: rgba(255,255,255,0.06);
+transform: translateY(-5px);
+box-shadow: 0 12px 40px rgba(255,255,255,0.08);
+}
+.link-card span { color: var(--text); font-weight: 600; display: block; margin-bottom: 0.25rem; }
 
-    .donate-section {
-      text-align: center;
-      padding: 3rem 2rem;
-      background: var(--card);
-      border-radius: 24px;
-      border: 1px solid var(--border);
-    }
-    .donate-qr img {
-      width: 220px;
-      border-radius: 12px;
-      margin-top: 1rem;
-      border: 2px solid var(--border);
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .donate-qr img:hover {
-      border-color: var(--hover-border);
-      box-shadow: 0 0 48px rgba(255,255,255,0.12);
-      transform: scale(1.02);
-    }
+.donate-section {
+text-align: center;
+padding: 3rem 2rem;
+background: var(--card);
+border-radius: 24px;
+border: 1px solid var(--border);
+}
+.donate-qr img {
+width: 220px;
+border-radius: 12px;
+margin-top: 1rem;
+border: 2px solid var(--border);
+transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.donate-qr img:hover {
+border-color: var(--hover-border);
+box-shadow: 0 0 48px rgba(255,255,255,0.12);
+transform: scale(1.02);
+}
 
-    .footer {
-      text-align: center;
-      padding: 3rem 2rem;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border-top: 1px solid var(--border);
-    }
-    .footer a { color: var(--accent); text-decoration: none; transition: text-shadow 0.3s; }
-    .footer a:hover { text-shadow: 0 0 24px var(--accent-glow); }
+.footer {
+text-align: center;
+padding: 3rem 2rem;
+color: var(--text-muted);
+font-size: 0.9rem;
+border-top: 1px solid var(--border);
+}
+.footer a { color: var(--accent); text-decoration: none; transition: text-shadow 0.3s; }
+.footer a:hover { text-shadow: 0 0 24px var(--accent-glow); }
 
-    /* Quick nav anchors */
-    .quick-nav {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: var(--card);
-      border-radius: 50px;
-      border: 1px solid var(--border);
-      z-index: 90;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.4s, visibility 0.4s;
-    }
-    .quick-nav.visible { opacity: 1; visibility: visible; }
-    .quick-nav a {
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.8rem;
-      transition: all 0.3s;
-    }
-    .quick-nav a:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+.quick-nav {
+position: fixed;
+bottom: 2rem;
+left: 50%;
+transform: translateX(-50%);
+display: flex;
+gap: 0.5rem;
+padding: 0.5rem 1rem;
+background: var(--card);
+border-radius: 50px;
+border: 1px solid var(--border);
+z-index: 90;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.4s, visibility 0.4s;
+}
+.quick-nav.visible { opacity: 1; visibility: visible; }
+.quick-nav a {
+padding: 0.4rem 0.8rem;
+border-radius: 20px;
+color: var(--text-muted);
+text-decoration: none;
+font-size: 0.8rem;
+transition: all 0.3s;
+}
+.quick-nav a:hover { color: var(--text); background: rgba(255,255,255,0.08); }
 
-    @media (prefers-color-scheme: light) {
-      .btn-appstore { border-color: rgba(0,0,0,0.15); }
-      .btn-github:hover { color: var(--text); }
-      .tech-pill:hover { color: var(--text); }
-      .scroll-hint span { border-color: var(--border); }
-      .scroll-hint span::after { background: var(--text); }
-      .screenshot-item p { color: #fff; }
-      .why-item .check { background: linear-gradient(135deg, #424a53, #656d76); color: #fff; }
-    }
-    /* 回顶部按钮 */
-    .back-to-top {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 90;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    }
-    .back-to-top.visible { opacity: 1; visibility: visible; }
-    .back-to-top:hover {
-      color: var(--text);
-      border-color: var(--hover-border);
-      background: var(--card-hover);
-      transform: translateY(-3px);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-    }
-    .back-to-top svg { width: 22px; height: 22px; }
+@media (prefers-color-scheme: light) {
+.btn-appstore { border-color: rgba(0,0,0,0.15); }
+.btn-github:hover { color: var(--text); }
+.tech-pill:hover { color: var(--text); }
+.scroll-hint span { border-color: var(--border); }
+.scroll-hint span::after { background: var(--text); }
+.screenshot-item p { color: #fff; }
+.why-item .check { background: linear-gradient(135deg, #424a53, #656d76); color: #fff; }
+}
+.back-to-top {
+position: fixed;
+bottom: 1.5rem;
+right: 1.5rem;
+width: 48px;
+height: 48px;
+border-radius: 50%;
+background: var(--card);
+border: 1px solid var(--border);
+color: var(--text-muted);
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+z-index: 90;
+opacity: 0;
+visibility: hidden;
+transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.back-to-top.visible { opacity: 1; visibility: visible; }
+.back-to-top:hover {
+color: var(--text);
+border-color: var(--hover-border);
+background: var(--card-hover);
+transform: translateY(-3px);
+box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+.back-to-top svg { width: 22px; height: 22px; }
 
-    @media (max-width: 768px) {
-      .bento { grid-template-columns: 1fr; }
-      .why-grid { grid-template-columns: 1fr; }
-      .feature-grid { grid-template-columns: 1fr; }
-      .quick-nav { display: none; }
-    }
-  </style>
+@media (max-width: 768px) {
+.bento { grid-template-columns: 1fr 1fr; }
+.why-grid { grid-template-columns: 1fr; }
+.feature-grid { grid-template-columns: 1fr; }
+.quick-nav { display: none; }
+}
+@media (max-width: 480px) {
+.bento { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-  <div class="lang-switcher">
-    <button class="lang-btn active" data-lang="zh" aria-label="中文">中文</button>
-    <button class="lang-btn" data-lang="en" aria-label="English">EN</button>
-  </div>
-  <canvas id="particles"></canvas>
 
-  <button type="button" class="back-to-top" id="back-to-top" aria-label="回到顶部">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
-  </button>
+<div class="lang-switcher">
+<button class="lang-btn active" data-lang="zh">中文</button>
+<button class="lang-btn" data-lang="en">EN</button>
+</div>
 
-  <div class="quick-nav">
-    <a href="#why" data-i18n="navWhy">为什么选择</a>
-    <a href="#screenshots" data-i18n="navScreenshots">截图</a>
-    <a href="#features" data-i18n="navFeatures">功能</a>
-    <a href="#install" data-i18n="navInstall">下载</a>
-  </div>
+<canvas id="particles"></canvas>
 
-  <div class="content">
-    <header class="hero">
-      <div class="logo-wrap hero-el"><img src="icon.png" alt="Python IDE" class="logo" /></div>
-      <h1 class="hero-el"><span data-i18n="heroTitle">Python IDE</span></h1>
-      <p class="tagline hero-el"><span data-i18n="heroTagline">掌上的 Python & JavaScript 开发环境</span></p>
-      <p class="sub hero-el"><span data-i18n="heroSub">让编程从电脑走到手机与平板 · Write, Run, Debug on iOS</span></p>
-      <div class="cta hero-el">
-        <a href="https://apps.apple.com/app/id6753987304" class="btn btn-appstore"><span data-i18n="btnAppStore">App Store 免费下载</span></a>
-        <a href="https://github.com/jinwandalaohu66/PythonIDE-Landing" class="btn btn-github">⭐ GitHub</a>
-      </div>
-      <div class="tech-stack hero-el">
-        <span class="tech-pill">iOS 16.2+</span>
-        <span class="tech-pill">Python 3.13</span>
-        <span class="tech-pill">JavaScript ES6+</span>
-        <span class="tech-pill">Swift 5.9</span>
-        <span class="tech-pill">C 扩展 12+</span>
-        <span class="tech-pill">预装 Wheels 150+</span>
-      </div>
-      <div class="scroll-hint hero-el"><span></span></div>
-    </header>
+<div class="content">
 
-    <div class="container">
-      <section id="why">
-        <h2 class="section-title animate-el"><span data-i18n="whyTitle">🌟 为什么选择 Python IDE？</span></h2>
-        <p class="animate-el" style="margin-bottom: 1.5rem; color: var(--text-muted); font-style: italic;"><span data-i18n="whySub">不是把电脑版塞进手机，而是专为触摸屏和移动场景重新设计的编程环境。</span></p>
-        <div class="bento">
-          <div class="bento-card animate-el" data-delay="0"><div class="icon">🚀</div><h3 data-i18n="bento1Title">完全本地运行</h3><p data-i18n="bento1Desc">代码执行不依赖任何服务器，无网络也能用。</p></div>
-          <div class="bento-card animate-el" data-delay="1"><div class="icon">⚡</div><h3 data-i18n="bento2Title">12 个 C 扩展</h3><p data-i18n="bento2Desc">NumPy、Pillow、cryptography 等，10–100 倍加速。</p></div>
-          <div class="bento-card animate-el" data-delay="2"><div class="icon">📦</div><h3 data-i18n="bento3Title">150+ 预装库</h3><p data-i18n="bento3Desc">常用库开箱即用，搜索 PyPI 在线安装。</p></div>
-          <div class="bento-card animate-el" data-delay="3"><div class="icon">🤖</div><h3 data-i18n="bento4Title">AI 助手</h3><p data-i18n="bento4Desc">免费额度 + BYOK 无限使用。</p></div>
-          <div class="bento-card animate-el" data-delay="4"><div class="icon">📱</div><h3 data-i18n="bento5Title">iOS 深度集成</h3><p data-i18n="bento5Desc">灵动岛、Siri 快捷指令、x-callback-url。</p></div>
-          <div class="bento-card animate-el" data-delay="5"><div class="icon">🔒</div><h3 data-i18n="bento6Title">隐私安全</h3><p data-i18n="bento6Desc">Face ID 锁定，本地运行，代码不外传。</p></div>
-        </div>
-        <div class="why-grid">
-          <div class="why-item animate-el" data-delay="0"><span class="check">✓</span><span data-i18n="why1">完全本地运行，无网络也能用</span></div>
-          <div class="why-item animate-el" data-delay="1"><span class="check">✓</span><span data-i18n="why2">Python 3.13 完整标准库</span></div>
-          <div class="why-item animate-el" data-delay="2"><span class="check">✓</span><span data-i18n="why3">12 个预装 C 扩展，10-100x 加速</span></div>
-          <div class="why-item animate-el" data-delay="3"><span class="check">✓</span><span data-i18n="why4">150+ 预装 Wheel 库</span></div>
-          <div class="why-item animate-el" data-delay="4"><span class="check">✓</span><span data-i18n="why5">AI 助手开箱即用</span></div>
-          <div class="why-item animate-el" data-delay="5"><span class="check">✓</span><span data-i18n="why6">灵动岛、Siri、x-callback-url</span></div>
-        </div>
-      </section>
+<nav class="quick-nav">
+<a href="#why" data-i18n="navWhy">为什么选择</a>
+<a href="#screenshots" data-i18n="navScreenshots">截图</a>
+<a href="#features" data-i18n="navFeatures">功能</a>
+<a href="#install" data-i18n="navInstall">下载</a>
+</nav>
 
-      <section id="screenshots">
-        <h2 class="section-title animate-el"><span data-i18n="screenshotsTitle">📱 截图展示</span></h2>
-        <div class="screenshots">
-          <div class="screenshot-item animate-el" data-delay="0"><img src="首页.png" alt="首页" /><p data-i18n="ss1">首页 · 文件管理、颜色标记、置顶、搜索</p></div>
-          <div class="screenshot-item animate-el" data-delay="1"><img src="编辑页面.png" alt="编辑器" /><p data-i18n="ss2">编辑器 · 语法高亮、智能补全、快捷输入栏</p></div>
-          <div class="screenshot-item animate-el" data-delay="2"><img src="控制台页面.png" alt="控制台" /><p data-i18n="ss3">控制台 · Rich 彩色输出、多控制台切换</p></div>
-          <div class="screenshot-item animate-el" data-delay="3"><img src="AI分析.png" alt="AI 助手" /><p data-i18n="ss4">AI 助手 · Diff 差异对比、一键修复报错</p></div>
-          <div class="screenshot-item animate-el" data-delay="4"><img src="库管理.png" alt="库管理" /><p data-i18n="ss5">库管理 · PyPI 搜索安装、热门库分类</p></div>
-          <div class="screenshot-item animate-el" data-delay="5"><img src="工具箱.png" alt="工具箱" /><p data-i18n="ss6">工具箱 · 编解码、JSON、API 调试、正则</p></div>
-          <div class="screenshot-item animate-el" data-delay="6"><img src="html预览.png" alt="HTML 预览" /><p data-i18n="ss7">HTML 预览 · 全屏网页渲染、双指缩放</p></div>
-          <div class="screenshot-item animate-el" data-delay="7"><img src="md文件.png" alt="Markdown" /><p data-i18n="ss8">Markdown 渲染 · 实时渲染、代码块、表格</p></div>
-          <div class="screenshot-item animate-el" data-delay="8"><img src="新建文件.png" alt="新建文件" /><p data-i18n="ss9">新建文件 · 多种格式、颜色标记</p></div>
-          <div class="screenshot-item animate-el" data-delay="9"><img src="设置.png" alt="设置" /><p data-i18n="ss10">设置 · 外观、AI 配置、应用锁定</p></div>
-        </div>
-      </section>
+<section class="hero">
+<div class="logo-wrap hero-el"><img src="icon.png" class="logo" alt="Python IDE" /></div>
+<h1 class="hero-el" data-i18n="heroTitle">Python IDE</h1>
+<p class="tagline hero-el" data-i18n="heroTagline">掌上的 Python & JavaScript 开发环境</p>
+<p class="sub hero-el" data-i18n="heroSub">让编程从电脑走到手机与平板 · Write, Run, Debug on iOS</p>
+<div class="cta hero-el">
+<a href="https://apps.apple.com/app/id6753987304" class="btn btn-appstore" data-i18n="btnAppStore"> App Store 免费下载</a>
+<a href="https://github.com/jinwandalaohu66/PythonIDE-iOS" class="btn btn-github">⭐ GitHub</a>
+</div>
+<div class="tech-stack hero-el">
+<span class="tech-pill">iOS 16.2+</span>
+<span class="tech-pill">Python 3.13</span>
+<span class="tech-pill">JavaScript ES6+</span>
+<span class="tech-pill">Swift 5.9</span>
+<span class="tech-pill">C 扩展 12+</span>
+<span class="tech-pill">预装 Wheels 150+</span>
+</div>
+<div class="scroll-hint hero-el"><span></span></div>
+</section>
 
-      <section id="features">
-        <h2 class="section-title animate-el"><span data-i18n="featuresTitle">✨ 核心功能</span></h2>
-        <div class="feature-tabs animate-el">
-          <button class="tab-btn active" data-tab="lang" data-i18n="tabLang">多语言</button>
-          <button class="tab-btn" data-tab="editor" data-i18n="tabEditor">编辑器</button>
-          <button class="tab-btn" data-tab="ai" data-i18n="tabAI">AI 助手</button>
-          <button class="tab-btn" data-tab="libs" data-i18n="tabLibs">扩展库</button>
-          <button class="tab-btn" data-tab="tools" data-i18n="tabTools">工具箱</button>
-        </div>
-        <div id="tab-lang" class="tab-content active"><div class="feature-grid">
-          <div class="feature-chip"><strong>Python 3.13</strong><br/><span data-i18n="fLang1">完整标准库、async/await、多线程</span></div>
-          <div class="feature-chip"><strong>JavaScript</strong><br/><span data-i18n="fLang2">alert/fetch/localStorage、剪贴板桥接</span></div>
-          <div class="feature-chip"><strong>HTML 预览</strong><br/><span data-i18n="fLang3">WKWebView 全屏渲染、双指缩放</span></div>
-        </div></div>
-        <div id="tab-editor" class="tab-content"><div class="feature-grid">
-          <div class="feature-chip" data-i18n="fEdit1">语法高亮、Jedi 智能补全</div>
-          <div class="feature-chip" data-i18n="fEdit2">查找替换、快捷输入栏</div>
-          <div class="feature-chip" data-i18n="fEdit3">分屏模式、错误跳转</div>
-          <div class="feature-chip" data-i18n="fEdit4">运行历史、实时保存</div>
-        </div></div>
-        <div id="tab-ai" class="tab-content"><div class="feature-grid">
-          <div class="feature-chip" data-i18n="fAI1">行内修改 + Diff 对比</div>
-          <div class="feature-chip" data-i18n="fAI2">报错一键修复</div>
-          <div class="feature-chip" data-i18n="fAI3">智能装库</div>
-          <div class="feature-chip" data-i18n="fAI4">BYOK 无限使用</div>
-        </div></div>
-        <div id="tab-libs" class="tab-content"><div class="feature-grid">
-          <div class="feature-chip">NumPy · Pillow · ujson</div>
-          <div class="feature-chip">cryptography · bcrypt</div>
-          <div class="feature-chip">aiohttp · regex</div>
-          <div class="feature-chip">requests · flask</div>
-        </div></div>
-        <div id="tab-tools" class="tab-content"><div class="feature-grid">
-          <div class="feature-chip" data-i18n="fTool1">编解码 · JSON · API 调试</div>
-          <div class="feature-chip" data-i18n="fTool2">二维码 · 时间戳</div>
-          <div class="feature-chip" data-i18n="fTool3">正则表达式</div>
-          <div class="feature-chip" data-i18n="fTool4">直链下载</div>
-        </div></div>
-      </section>
+<section id="why" class="container">
+<h2 class="section-title" data-i18n="whyTitle">🌟 为什么选择 Python IDE？</h2>
+<p style="color:var(--text-muted);margin-bottom:2rem;" data-i18n="whySub">不是把电脑版塞进手机，而是专为触摸屏和移动场景重新设计的编程环境。</p>
+<div class="bento">
+<div class="bento-card"><div class="icon">🚀</div><h3 data-i18n="bento1Title">完全本地运行</h3><p data-i18n="bento1Desc">代码执行不依赖任何服务器，无网络也能用。</p></div>
+<div class="bento-card"><div class="icon">⚡</div><h3 data-i18n="bento2Title">12 个 C 扩展</h3><p data-i18n="bento2Desc">NumPy、Pillow、cryptography 等，10–100 倍加速。</p></div>
+<div class="bento-card"><div class="icon">📦</div><h3 data-i18n="bento3Title">150+ 预装库</h3><p data-i18n="bento3Desc">常用库开箱即用，搜索 PyPI 在线安装。</p></div>
+<div class="bento-card"><div class="icon">🤖</div><h3 data-i18n="bento4Title">AI 助手</h3><p data-i18n="bento4Desc">免费额度 + BYOK 无限使用。</p></div>
+<div class="bento-card"><div class="icon">📱</div><h3 data-i18n="bento5Title">iOS 深度集成</h3><p data-i18n="bento5Desc">灵动岛、Siri 快捷指令、x-callback-url。</p></div>
+<div class="bento-card"><div class="icon">🔒</div><h3 data-i18n="bento6Title">隐私安全</h3><p data-i18n="bento6Desc">Face ID 锁定，本地运行，代码不外传。</p></div>
+<div class="bento-card"><div class="icon">🎮</div><h3 data-i18n="bento7Title">2D 游戏引擎</h3><p data-i18n="bento7Desc">Scene 模块 + SpriteKit，物理引擎、粒子、动画。</p></div>
+<div class="bento-card"><div class="icon">📲</div><h3 data-i18n="bento8Title">桌面小组件</h3><p data-i18n="bento8Desc">Python 创建 iOS 主屏幕 Widget，声明式布局。</p></div>
+</div>
+<div class="why-grid">
+<div class="why-item"><div class="check">✓</div><span data-i18n="why1">完全本地运行，无网络也能用</span></div>
+<div class="why-item"><div class="check">✓</div><span data-i18n="why2">Python 3.13 完整标准库</span></div>
+<div class="why-item"><div class="check">✓</div><span data-i18n="why3">12 个预装 C 扩展，10-100x 加速</span></div>
+<div class="why-item"><div class="check">✓</div><span data-i18n="why4">150+ 预装 Wheel 库</span></div>
+<div class="why-item"><div class="check">✓</div><span data-i18n="why5">AI 助手开箱即用</span></div>
+<div class="why-item"><div class="check">✓</div><span data-i18n="why6">灵动岛、Siri、x-callback-url</span></div>
+<div class="why-item"><div class="check">✓</div><span data-i18n="why7">Scene 2D 游戏引擎 + 物理</span></div>
+<div class="why-item"><div class="check">✓</div><span data-i18n="why8">Widget 桌面小组件</span></div>
+</div>
+</section>
 
-      <section id="install" class="install-cta">
-        <h2 data-i18n="installTitle">📥 立即下载</h2>
-        <p style="color: var(--text-muted); margin-bottom: 1rem;"><span data-i18n="installSub">iOS 16.2+ · iPhone / iPad · 免费</span></p>
-        <a href="https://apps.apple.com/app/id6753987304" class="btn btn-appstore"><span data-i18n="btnAppStore">App Store 免费下载</span></a>
-      </section>
+<section id="screenshots" class="container">
+<h2 class="section-title" data-i18n="screenshotsTitle">📱 截图展示</h2>
+<div class="screenshots">
+<div class="screenshot-item"><img src="首页.png" alt="首页" /><p data-i18n="ss1">首页 · 文件管理、颜色标记、置顶、搜索</p></div>
+<div class="screenshot-item"><img src="编辑页面.png" alt="编辑器" /><p data-i18n="ss2">编辑器 · 语法高亮、智能补全、快捷输入栏</p></div>
+<div class="screenshot-item"><img src="控制台页面.png" alt="控制台" /><p data-i18n="ss3">控制台 · Rich 彩色输出、多控制台切换</p></div>
+<div class="screenshot-item"><img src="AI分析.png" alt="AI 助手" /><p data-i18n="ss4">AI 助手 · Diff 差异对比、一键修复报错</p></div>
+<div class="screenshot-item"><img src="库管理.png" alt="库管理" /><p data-i18n="ss5">库管理 · PyPI 搜索安装、热门库分类</p></div>
+<div class="screenshot-item"><img src="工具箱.png" alt="工具箱" /><p data-i18n="ss6">工具箱 · 编解码、JSON、API 调试、正则</p></div>
+<div class="screenshot-item"><img src="html预览.png" alt="HTML 预览" /><p data-i18n="ss7">HTML 预览 · 全屏网页渲染、双指缩放</p></div>
+<div class="screenshot-item"><img src="md文件.png" alt="Markdown" /><p data-i18n="ss8">Markdown 渲染 · 实时渲染、代码块、表格</p></div>
+<div class="screenshot-item"><img src="新建文件.png" alt="新建文件" /><p data-i18n="ss9">新建文件 · 多种格式、颜色标记</p></div>
+<div class="screenshot-item"><img src="设置.png" alt="设置" /><p data-i18n="ss10">设置 · 外观、AI 配置、应用锁定</p></div>
+</div>
+</section>
 
-      <section>
-        <h2 class="section-title animate-el"><span data-i18n="communityTitle">💬 社区与反馈</span></h2>
-        <div class="link-grid">
-          <a href="https://t.me/pythonzwb" class="link-card animate-el"><span>Telegram</span> <span data-i18n="link1">频道交流</span></a>
-          <a href="https://github.com/jinwandalaohu66/PythonIDE-Landing/discussions" class="link-card animate-el"><span>Discussions</span> <span data-i18n="link2">功能建议</span></a>
-          <a href="https://github.com/jinwandalaohu66/PythonIDE-Landing/issues" class="link-card animate-el"><span>Issues</span> <span data-i18n="link3">问题反馈</span></a>
-          <a href="mailto:jinwandalaohu940@gmail.com?subject=Python IDE%20Feedback" class="link-card animate-el"><span>📧</span> <span data-i18n="link4">邮件反馈</span></a>
-        </div>
-      </section>
+<section id="features" class="container">
+<h2 class="section-title" data-i18n="featuresTitle">✨ 核心功能</h2>
+<div class="feature-tabs">
+<button class="tab-btn active" data-tab="lang" data-i18n="tabLang">多语言</button>
+<button class="tab-btn" data-tab="editor" data-i18n="tabEditor">编辑器</button>
+<button class="tab-btn" data-tab="ai" data-i18n="tabAI">AI 助手</button>
+<button class="tab-btn" data-tab="libs" data-i18n="tabLibs">扩展库</button>
+<button class="tab-btn" data-tab="tools" data-i18n="tabTools">工具箱</button>
+<button class="tab-btn" data-tab="scene" data-i18n="tabScene">游戏引擎</button>
+<button class="tab-btn" data-tab="widget" data-i18n="tabWidget">桌面小组件</button>
+</div>
+<div id="tab-lang" class="tab-content active">
+<div class="feature-grid">
+<div class="feature-chip"><strong>Python 3.13</strong> <span data-i18n="fLang1">完整标准库、async/await、多线程</span></div>
+<div class="feature-chip"><strong>JavaScript</strong> <span data-i18n="fLang2">alert/fetch/localStorage、剪贴板桥接</span></div>
+<div class="feature-chip"><strong>HTML 预览</strong> <span data-i18n="fLang3">WKWebView 全屏渲染、双指缩放</span></div>
+</div>
+</div>
+<div id="tab-editor" class="tab-content">
+<div class="feature-grid">
+<div class="feature-chip" data-i18n="fEdit1">语法高亮、Jedi 智能补全</div>
+<div class="feature-chip" data-i18n="fEdit2">查找替换、快捷输入栏</div>
+<div class="feature-chip" data-i18n="fEdit3">分屏模式、错误跳转</div>
+<div class="feature-chip" data-i18n="fEdit4">运行历史、实时保存</div>
+</div>
+</div>
+<div id="tab-ai" class="tab-content">
+<div class="feature-grid">
+<div class="feature-chip" data-i18n="fAI1">行内修改 + Diff 对比</div>
+<div class="feature-chip" data-i18n="fAI2">报错一键修复</div>
+<div class="feature-chip" data-i18n="fAI3">智能装库</div>
+<div class="feature-chip" data-i18n="fAI4">BYOK 无限使用</div>
+</div>
+</div>
+<div id="tab-libs" class="tab-content">
+<div class="feature-grid">
+<div class="feature-chip">NumPy · Pillow · ujson</div>
+<div class="feature-chip">cryptography · bcrypt</div>
+<div class="feature-chip">aiohttp · regex</div>
+<div class="feature-chip">requests · flask</div>
+</div>
+</div>
+<div id="tab-tools" class="tab-content">
+<div class="feature-grid">
+<div class="feature-chip" data-i18n="fTool1">编解码 · JSON · API 调试</div>
+<div class="feature-chip" data-i18n="fTool2">二维码 · 时间戳</div>
+<div class="feature-chip" data-i18n="fTool3">正则表达式</div>
+<div class="feature-chip" data-i18n="fTool4">直链下载</div>
+</div>
+</div>
+<div id="tab-scene" class="tab-content">
+<div class="feature-grid">
+<div class="feature-chip" data-i18n="fScene1">SpriteKit 驱动的 2D 游戏引擎</div>
+<div class="feature-chip" data-i18n="fScene2">Node / SpriteNode / ShapeNode / LabelNode</div>
+<div class="feature-chip" data-i18n="fScene3">14 种 Action 动画 + 16 种缓动曲线</div>
+<div class="feature-chip" data-i18n="fScene4">物理引擎：重力、碰撞、关节</div>
+<div class="feature-chip" data-i18n="fScene5">经典 draw() 逐帧绘制模式</div>
+<div class="feature-chip" data-i18n="fScene6">触摸事件、陀螺仪、音效</div>
+<div class="feature-chip" data-i18n="fScene7">内置 16 款游戏示例</div>
+<div class="feature-chip" data-i18n="fScene8">Pythonista 完全兼容</div>
+</div>
+</div>
+<div id="tab-widget" class="tab-content">
+<div class="feature-grid">
+<div class="feature-chip" data-i18n="fWidget1">Python 创建 iOS 桌面小组件</div>
+<div class="feature-chip" data-i18n="fWidget2">14 种组件：文字、图标、进度条、仪表盘…</div>
+<div class="feature-chip" data-i18n="fWidget3">6 种尺寸：主屏幕 + 锁屏</div>
+<div class="feature-chip" data-i18n="fWidget4">深色模式自动适配</div>
+<div class="feature-chip" data-i18n="fWidget5">渐变背景 + 图片缓存</div>
+<div class="feature-chip" data-i18n="fWidget6">WidgetKit 原生倒计时</div>
+<div class="feature-chip" data-i18n="fWidget7">内置 8 款小组件示例</div>
+<div class="feature-chip" data-i18n="fWidget8">声明式 DSL + 快捷模板</div>
+</div>
+</div>
+</section>
 
-      <section class="donate-section">
-        <h2 class="section-title animate-el"><span data-i18n="donateTitle">☕ 支持开发</span></h2>
-        <p style="color: var(--text-muted);"><span data-i18n="donateSub">App Store 评分 · GitHub Star · 应用内捐赠（棒棒糖 / 鸡腿 / 奶茶）</span></p>
-        <div class="donate-qr animate-el">
-          <img src="donate-qr.jpeg" alt="赞赏码" width="220" />
-          <p style="margin-top: 0.75rem; color: var(--text-muted);"><span data-i18n="donateQr">扫码赞赏 · Thank you ♥</span></p>
-        </div>
-      </section>
+<section id="install" class="container">
+<div class="install-cta">
+<h2 data-i18n="installTitle">📥 立即下载</h2>
+<p style="color:var(--text-muted);margin-bottom:1.5rem;" data-i18n="installSub">iOS 16.2+ · iPhone / iPad · 免费</p>
+<a href="https://apps.apple.com/app/id6753987304" class="btn btn-appstore" data-i18n="btnAppStore">App Store 免费下载</a>
+</div>
+</section>
 
-      <footer class="footer">
-        <p><strong>Python IDE</strong> — <span data-i18n="footerTag">本地、纯粹、实用的移动端编程环境</span></p>
-        <p style="margin-top: 0.5rem;"><a href="https://github.com/jinwandalaohu66/PythonIDE-Landing"><span data-i18n="footerLink">查看 README.md 完整文档</span></a></p>
-      </footer>
-    </div>
-  </div>
+<section class="container">
+<h2 class="section-title" data-i18n="communityTitle">💬 社区与反馈</h2>
+<div class="link-grid">
+<a href="https://t.me/pythonzwb" class="link-card" target="_blank"><span>Telegram</span> <span data-i18n="link1">频道交流</span></a>
+<a href="https://github.com/jinwandalaohu66/PythonIDE-Landing/discussions" class="link-card" target="_blank"><span>Discussions</span> <span data-i18n="link2">功能建议</span></a>
+<a href="https://github.com/jinwandalaohu66/PythonIDE-Landing/issues" class="link-card" target="_blank"><span>Issues</span> <span data-i18n="link3">问题反馈</span></a>
+<a href="mailto:jinwandalaohu940@gmail.com?subject=Python%20IDE%20Feedback" class="link-card"><span>📧</span> <span data-i18n="link4">邮件反馈</span></a>
+</div>
+</section>
 
-  <script>
-    const i18n = {
-      zh: {
-        navWhy: "为什么选择", navScreenshots: "截图", navFeatures: "功能", navInstall: "下载",
-        heroTitle: "Python IDE", heroTagline: "掌上的 Python & JavaScript 开发环境",
-        heroSub: "让编程从电脑走到手机与平板 · Write, Run, Debug on iOS",
-        btnAppStore: "App Store 免费下载",
-        whyTitle: "🌟 为什么选择 Python IDE？", whySub: "不是把电脑版塞进手机，而是专为触摸屏和移动场景重新设计的编程环境。",
-        bento1Title: "完全本地运行", bento1Desc: "代码执行不依赖任何服务器，无网络也能用。",
-        bento2Title: "12 个 C 扩展", bento2Desc: "NumPy、Pillow、cryptography 等，10–100 倍加速。",
-        bento3Title: "150+ 预装库", bento3Desc: "常用库开箱即用，搜索 PyPI 在线安装。",
-        bento4Title: "AI 助手", bento4Desc: "免费额度 + BYOK 无限使用。",
-        bento5Title: "iOS 深度集成", bento5Desc: "灵动岛、Siri 快捷指令、x-callback-url。",
-        bento6Title: "隐私安全", bento6Desc: "Face ID 锁定，本地运行，代码不外传。",
-        why1: "完全本地运行，无网络也能用", why2: "Python 3.13 完整标准库", why3: "12 个预装 C 扩展，10-100x 加速",
-        why4: "150+ 预装 Wheel 库", why5: "AI 助手开箱即用", why6: "灵动岛、Siri、x-callback-url",
-        screenshotsTitle: "📱 截图展示",
-        ss1: "首页 · 文件管理、颜色标记、置顶、搜索", ss2: "编辑器 · 语法高亮、智能补全、快捷输入栏",
-        ss3: "控制台 · Rich 彩色输出、多控制台切换", ss4: "AI 助手 · Diff 差异对比、一键修复报错",
-        ss5: "库管理 · PyPI 搜索安装、热门库分类", ss6: "工具箱 · 编解码、JSON、API 调试、正则",
-        ss7: "HTML 预览 · 全屏网页渲染、双指缩放", ss8: "Markdown 渲染 · 实时渲染、代码块、表格",
-        ss9: "新建文件 · 多种格式、颜色标记", ss10: "设置 · 外观、AI 配置、应用锁定",
-        featuresTitle: "✨ 核心功能", tabLang: "多语言", tabEditor: "编辑器", tabAI: "AI 助手", tabLibs: "扩展库", tabTools: "工具箱",
-        fLang1: "完整标准库、async/await、多线程", fLang2: "alert/fetch/localStorage、剪贴板桥接", fLang3: "WKWebView 全屏渲染、双指缩放",
-        fEdit1: "语法高亮、Jedi 智能补全", fEdit2: "查找替换、快捷输入栏", fEdit3: "分屏模式、错误跳转", fEdit4: "运行历史、实时保存",
-        fAI1: "行内修改 + Diff 对比", fAI2: "报错一键修复", fAI3: "智能装库", fAI4: "BYOK 无限使用",
-        fTool1: "编解码 · JSON · API 调试", fTool2: "二维码 · 时间戳", fTool3: "正则表达式", fTool4: "直链下载",
-        installTitle: "📥 立即下载", installSub: "iOS 16.2+ · iPhone / iPad · 免费",
-        communityTitle: "💬 社区与反馈", link1: "频道交流", link2: "功能建议", link3: "问题反馈", link4: "邮件反馈",
-        donateTitle: "☕ 支持开发", donateSub: "App Store 评分 · GitHub Star · 应用内捐赠（棒棒糖 / 鸡腿 / 奶茶）", donateQr: "扫码赞赏 · Thank you ♥",
-        footerTag: "本地、纯粹、实用的移动端编程环境", footerLink: "查看 README.md 完整文档"
-      },
-      en: {
-        navWhy: "Why Choose", navScreenshots: "Screenshots", navFeatures: "Features", navInstall: "Download",
-        heroTitle: "Python IDE", heroTagline: "Python & JavaScript on Your Palm",
-        heroSub: "Write, Run, Debug on iOS · From Desktop to Mobile",
-        btnAppStore: "Download on App Store",
-        whyTitle: "🌟 Why Python IDE?", whySub: "Built for touch and mobile — not a desktop IDE cramped into a phone.",
-        bento1Title: "Fully Local", bento1Desc: "Runs offline. No server dependency.",
-        bento2Title: "12 C Extensions", bento2Desc: "NumPy, Pillow, cryptography — 10–100× faster.",
-        bento3Title: "150+ Libraries", bento3Desc: "Pre-installed. Search PyPI for more.",
-        bento4Title: "AI Assistant", bento4Desc: "Free quota + BYOK unlimited.",
-        bento5Title: "iOS Native", bento5Desc: "Dynamic Island, Siri, x-callback-url.",
-        bento6Title: "Privacy First", bento6Desc: "Face ID lock. Code stays on device.",
-        why1: "Fully local, works offline", why2: "Python 3.13 full stdlib", why3: "12 C extensions, 10–100× speed",
-        why4: "150+ pre-installed wheels", why5: "AI assistant out of the box", why6: "Dynamic Island, Siri, x-callback-url",
-        screenshotsTitle: "📱 Screenshots",
-        ss1: "Home · Files, tags, pin, search", ss2: "Editor · Syntax, autocomplete, shortcuts",
-        ss3: "Console · Rich output, multi-console", ss4: "AI · Diff, one-tap fix",
-        ss5: "Libraries · PyPI search, categories", ss6: "Tools · Encode, JSON, API, regex",
-        ss7: "HTML Preview · Full-screen, zoom", ss8: "Markdown · Live render",
-        ss9: "New File · Formats, tags", ss10: "Settings · Theme, AI, lock",
-        featuresTitle: "✨ Core Features", tabLang: "Languages", tabEditor: "Editor", tabAI: "AI", tabLibs: "Libraries", tabTools: "Tools",
-        fLang1: "Full stdlib, async/await, threading", fLang2: "alert/fetch/localStorage, clipboard", fLang3: "WKWebView, pinch zoom",
-        fEdit1: "Syntax highlighting, Jedi autocomplete", fEdit2: "Find & replace, shortcut bar", fEdit3: "Split view, error jump", fEdit4: "Run history, auto-save",
-        fAI1: "Inline edit + Diff", fAI2: "One-tap error fix", fAI3: "Smart install", fAI4: "BYOK unlimited",
-        fTool1: "Encode · JSON · API", fTool2: "QR · Timestamp", fTool3: "Regex", fTool4: "Direct download",
-        installTitle: "📥 Download", installSub: "iOS 16.2+ · iPhone / iPad · Free",
-        communityTitle: "💬 Community", link1: "Telegram", link2: "Discussions", link3: "Issues", link4: "Email",
-        donateTitle: "☕ Support", donateSub: "App Store rating · GitHub Star · In-app tip", donateQr: "Scan to tip · Thank you ♥",
-        footerTag: "Local, clean, practical — mobile coding", footerLink: "View full README"
-      }
-    };
+<section class="container">
+<div class="donate-section">
+<h2 data-i18n="donateTitle">☕ 支持开发</h2>
+<p style="color:var(--text-muted)" data-i18n="donateSub">App Store 评分 · GitHub Star · 应用内捐赠（棒棒糖 / 鸡腿 / 奶茶）</p>
+<div class="donate-qr">
+<img src="赞赏码.jpg" alt="赞赏码" />
+<p style="color:var(--text-muted);margin-top:0.5rem;" data-i18n="donateQr">扫码赞赏 · Thank you ♥</p>
+</div>
+</div>
+</section>
 
-    let lang = localStorage.getItem('pythonide-lang') || 'zh';
-    function applyLang(l) {
-      lang = l;
-      localStorage.setItem('pythonide-lang', l);
-      document.querySelectorAll('.lang-btn').forEach(b => { b.classList.toggle('active', b.dataset.lang === l); });
-      const t = i18n[l];
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const k = el.dataset.i18n;
-        if (t[k]) el.textContent = t[k];
-      });
-      document.documentElement.lang = l === 'zh' ? 'zh-CN' : 'en';
-      document.title = l === 'zh' ? 'Python IDE - 掌上的 Python & JavaScript 开发环境' : 'Python IDE - Python & JavaScript on iOS';
-    }
-    document.querySelectorAll('.lang-btn').forEach(btn => {
-      btn.addEventListener('click', () => applyLang(btn.dataset.lang));
-    });
-    applyLang(lang);
+<footer class="footer">
+<strong>Python IDE</strong> — <span data-i18n="footerTag">本地、纯粹、实用的移动端编程环境</span><br/>
+<a href="https://github.com/jinwandalaohu66/PythonIDE-iOS" data-i18n="footerLink">查看 README.md 完整文档</a>
+</footer>
 
-    // Scroll progress
-    // Quick nav & back-to-top visibility
-    const quickNav = document.querySelector('.quick-nav');
-    const backToTop = document.getElementById('back-to-top');
-    window.addEventListener('scroll', () => {
-      const show = window.scrollY > window.innerHeight * 0.5;
-      quickNav.classList.toggle('visible', show);
-      backToTop.classList.toggle('visible', show);
-    });
-    backToTop.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+</div>
 
-    // Particles
-    (function() {
-      const canvas = document.getElementById('particles');
-      const ctx = canvas.getContext('2d');
-      let w = canvas.width = window.innerWidth, h = canvas.height = window.innerHeight;
-      let particles = [];
-      const count = Math.min(100, Math.floor((w * h) / 12000));
-      const maxDist = 140;
+<button class="back-to-top" id="back-to-top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg></button>
 
-      class Particle {
-        constructor() {
-          this.x = Math.random() * w; this.y = Math.random() * h;
-          this.vx = (Math.random() - 0.5) * 0.12; this.vy = (Math.random() - 0.5) * 0.12;
-          this.r = Math.random() * 2.5 + 0.5; this.opacity = Math.random() * 0.4 + 0.25;
-        }
-        update() {
-          this.x += this.vx; this.y += this.vy;
-          if (this.x < 0 || this.x > w) this.vx *= -1;
-          if (this.y < 0 || this.y > h) this.vy *= -1;
-        }
-      }
-      for (let i = 0; i < count; i++) particles.push(new Particle());
+<script>
+const i18n = {
+zh: {
+navWhy: "为什么选择", navScreenshots: "截图", navFeatures: "功能", navInstall: "下载",
+heroTitle: "Python IDE", heroTagline: "掌上的 Python & JavaScript 开发环境",
+heroSub: "让编程从电脑走到手机与平板 · Write, Run, Debug on iOS",
+btnAppStore: "App Store 免费下载",
+whyTitle: "🌟 为什么选择 Python IDE？", whySub: "不是把电脑版塞进手机，而是专为触摸屏和移动场景重新设计的编程环境。",
+bento1Title: "完全本地运行", bento1Desc: "代码执行不依赖任何服务器，无网络也能用。",
+bento2Title: "12 个 C 扩展", bento2Desc: "NumPy、Pillow、cryptography 等，10–100 倍加速。",
+bento3Title: "150+ 预装库", bento3Desc: "常用库开箱即用，搜索 PyPI 在线安装。",
+bento4Title: "AI 助手", bento4Desc: "免费额度 + BYOK 无限使用。",
+bento5Title: "iOS 深度集成", bento5Desc: "灵动岛、Siri 快捷指令、x-callback-url。",
+bento6Title: "隐私安全", bento6Desc: "Face ID 锁定，本地运行，代码不外传。",
+bento7Title: "2D 游戏引擎", bento7Desc: "Scene 模块 + SpriteKit，物理引擎、粒子、动画。",
+bento8Title: "桌面小组件", bento8Desc: "Python 创建 iOS 主屏幕 Widget，声明式布局。",
+why1: "完全本地运行，无网络也能用", why2: "Python 3.13 完整标准库", why3: "12 个预装 C 扩展，10-100x 加速",
+why4: "150+ 预装 Wheel 库", why5: "AI 助手开箱即用", why6: "灵动岛、Siri、x-callback-url",
+why7: "Scene 2D 游戏引擎 + 物理", why8: "Widget 桌面小组件",
+screenshotsTitle: "📱 截图展示",
+ss1: "首页 · 文件管理、颜色标记、置顶、搜索", ss2: "编辑器 · 语法高亮、智能补全、快捷输入栏",
+ss3: "控制台 · Rich 彩色输出、多控制台切换", ss4: "AI 助手 · Diff 差异对比、一键修复报错",
+ss5: "库管理 · PyPI 搜索安装、热门库分类", ss6: "工具箱 · 编解码、JSON、API 调试、正则",
+ss7: "HTML 预览 · 全屏网页渲染、双指缩放", ss8: "Markdown 渲染 · 实时渲染、代码块、表格",
+ss9: "新建文件 · 多种格式、颜色标记", ss10: "设置 · 外观、AI 配置、应用锁定",
+featuresTitle: "✨ 核心功能",
+tabLang: "多语言", tabEditor: "编辑器", tabAI: "AI 助手", tabLibs: "扩展库", tabTools: "工具箱",
+tabScene: "游戏引擎", tabWidget: "桌面小组件",
+fLang1: "完整标准库、async/await、多线程", fLang2: "alert/fetch/localStorage、剪贴板桥接", fLang3: "WKWebView 全屏渲染、双指缩放",
+fEdit1: "语法高亮、Jedi 智能补全", fEdit2: "查找替换、快捷输入栏", fEdit3: "分屏模式、错误跳转", fEdit4: "运行历史、实时保存",
+fAI1: "行内修改 + Diff 对比", fAI2: "报错一键修复", fAI3: "智能装库", fAI4: "BYOK 无限使用",
+fTool1: "编解码 · JSON · API 调试", fTool2: "二维码 · 时间戳", fTool3: "正则表达式", fTool4: "直链下载",
+fScene1: "SpriteKit 驱动的 2D 游戏引擎", fScene2: "Node / SpriteNode / ShapeNode / LabelNode",
+fScene3: "14 种 Action 动画 + 16 种缓动曲线", fScene4: "物理引擎：重力、碰撞、关节",
+fScene5: "经典 draw() 逐帧绘制模式", fScene6: "触摸事件、陀螺仪、音效",
+fScene7: "内置 16 款游戏示例", fScene8: "Pythonista 完全兼容",
+fWidget1: "Python 创建 iOS 桌面小组件", fWidget2: "14 种组件：文字、图标、进度条、仪表盘…",
+fWidget3: "6 种尺寸：主屏幕 + 锁屏", fWidget4: "深色模式自动适配",
+fWidget5: "渐变背景 + 图片缓存", fWidget6: "WidgetKit 原生倒计时",
+fWidget7: "内置 8 款小组件示例", fWidget8: "声明式 DSL + 快捷模板",
+installTitle: "📥 立即下载", installSub: "iOS 16.2+ · iPhone / iPad · 免费",
+communityTitle: "💬 社区与反馈", link1: "频道交流", link2: "功能建议", link3: "问题反馈", link4: "邮件反馈",
+donateTitle: "☕ 支持开发", donateSub: "App Store 评分 · GitHub Star · 应用内捐赠（棒棒糖 / 鸡腿 / 奶茶）", donateQr: "扫码赞赏 · Thank you ♥",
+footerTag: "本地、纯粹、实用的移动端编程环境", footerLink: "查看 README.md 完整文档"
+},
+en: {
+navWhy: "Why Choose", navScreenshots: "Screenshots", navFeatures: "Features", navInstall: "Download",
+heroTitle: "Python IDE", heroTagline: "Python & JavaScript on Your Palm",
+heroSub: "Write, Run, Debug on iOS · From Desktop to Mobile",
+btnAppStore: "Download on App Store",
+whyTitle: "🌟 Why Python IDE?", whySub: "Built for touch and mobile — not a desktop IDE cramped into a phone.",
+bento1Title: "Fully Local", bento1Desc: "Runs offline. No server dependency.",
+bento2Title: "12 C Extensions", bento2Desc: "NumPy, Pillow, cryptography — 10–100× faster.",
+bento3Title: "150+ Libraries", bento3Desc: "Pre-installed. Search PyPI for more.",
+bento4Title: "AI Assistant", bento4Desc: "Free quota + BYOK unlimited.",
+bento5Title: "iOS Native", bento5Desc: "Dynamic Island, Siri, x-callback-url.",
+bento6Title: "Privacy First", bento6Desc: "Face ID lock. Code stays on device.",
+bento7Title: "2D Game Engine", bento7Desc: "Scene module + SpriteKit, physics, particles, animations.",
+bento8Title: "Home Widgets", bento8Desc: "Create iOS widgets with Python, declarative layout.",
+why1: "Fully local, works offline", why2: "Python 3.13 full stdlib", why3: "12 C extensions, 10–100× speed",
+why4: "150+ pre-installed wheels", why5: "AI assistant out of the box", why6: "Dynamic Island, Siri, x-callback-url",
+why7: "Scene 2D game engine + physics", why8: "Widget home screen components",
+screenshotsTitle: "📱 Screenshots",
+ss1: "Home · Files, tags, pin, search", ss2: "Editor · Syntax, autocomplete, shortcuts",
+ss3: "Console · Rich output, multi-console", ss4: "AI · Diff, one-tap fix",
+ss5: "Libraries · PyPI search, categories", ss6: "Tools · Encode, JSON, API, regex",
+ss7: "HTML Preview · Full-screen, zoom", ss8: "Markdown · Live render",
+ss9: "New File · Formats, tags", ss10: "Settings · Theme, AI, lock",
+featuresTitle: "✨ Core Features",
+tabLang: "Languages", tabEditor: "Editor", tabAI: "AI", tabLibs: "Libraries", tabTools: "Tools",
+tabScene: "Game Engine", tabWidget: "Widgets",
+fLang1: "Full stdlib, async/await, threading", fLang2: "alert/fetch/localStorage, clipboard", fLang3: "WKWebView, pinch zoom",
+fEdit1: "Syntax highlighting, Jedi autocomplete", fEdit2: "Find & replace, shortcut bar", fEdit3: "Split view, error jump", fEdit4: "Run history, auto-save",
+fAI1: "Inline edit + Diff", fAI2: "One-tap error fix", fAI3: "Smart install", fAI4: "BYOK unlimited",
+fTool1: "Encode · JSON · API", fTool2: "QR · Timestamp", fTool3: "Regex", fTool4: "Direct download",
+fScene1: "SpriteKit-powered 2D game engine", fScene2: "Node / SpriteNode / ShapeNode / LabelNode",
+fScene3: "14 Actions + 16 timing curves", fScene4: "Physics: gravity, collision, joints",
+fScene5: "Classic draw() per-frame rendering", fScene6: "Touch events, gyroscope, sound effects",
+fScene7: "16 built-in game examples", fScene8: "Pythonista fully compatible",
+fWidget1: "Create iOS widgets with Python", fWidget2: "14 components: text, icon, progress, gauge…",
+fWidget3: "6 sizes: home screen + lock screen", fWidget4: "Auto dark mode support",
+fWidget5: "Gradient backgrounds + image cache", fWidget6: "WidgetKit native timer",
+fWidget7: "8 built-in widget examples", fWidget8: "Declarative DSL + quick templates",
+installTitle: "📥 Download", installSub: "iOS 16.2+ · iPhone / iPad · Free",
+communityTitle: "💬 Community", link1: "Telegram", link2: "Discussions", link3: "Issues", link4: "Email",
+donateTitle: "☕ Support", donateSub: "App Store rating · GitHub Star · In-app tip", donateQr: "Scan to tip · Thank you ♥",
+footerTag: "Local, clean, practical — mobile coding", footerLink: "View full README"
+}
+};
 
-      function getColor() { return (getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim() || '255,255,255').replace(/\s/g,''); }
-      function draw() {
-        const c = getColor();
-        ctx.clearRect(0, 0, w, h);
-        particles.forEach(p => { p.update(); ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(${c},${p.opacity})`; ctx.fill(); });
-        particles.forEach((a, i) => {
-          particles.slice(i + 1).forEach(b => {
-            const dx = a.x - b.x, dy = a.y - b.y, dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < maxDist) {
-              ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
-              ctx.strokeStyle = `rgba(${c},${0.1 * (1 - dist / maxDist)})`; ctx.lineWidth = 0.5; ctx.stroke();
-            }
-          });
-        });
-        requestAnimationFrame(draw);
-      }
-      draw();
-      window.addEventListener('resize', () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; });
-    })();
+let lang = localStorage.getItem('pythonide-lang') || 'zh';
+function applyLang(l) {
+lang = l;
+localStorage.setItem('pythonide-lang', l);
+document.querySelectorAll('.lang-btn').forEach(b => { b.classList.toggle('active', b.dataset.lang === l); });
+const t = i18n[l];
+document.querySelectorAll('[data-i18n]').forEach(el => {
+const k = el.dataset.i18n;
+if (t[k]) el.textContent = t[k];
+});
+document.documentElement.lang = l === 'zh' ? 'zh-CN' : 'en';
+document.title = l === 'zh' ? 'Python IDE - 掌上的 Python & JavaScript 开发环境' : 'Python IDE - Python & JavaScript on iOS';
+}
+document.querySelectorAll('.lang-btn').forEach(btn => {
+btn.addEventListener('click', () => applyLang(btn.dataset.lang));
+});
+applyLang(lang);
 
-    // Tab switch with animation
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        const panel = document.getElementById('tab-' + btn.dataset.tab);
-        panel.classList.add('active');
-        gsap.fromTo(panel.querySelectorAll('.feature-chip'), { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: 'power3.out' });
-      });
-    });
+const quickNav = document.querySelector('.quick-nav');
+const backToTop = document.getElementById('back-to-top');
+window.addEventListener('scroll', () => {
+const show = window.scrollY > window.innerHeight * 0.5;
+quickNav.classList.toggle('visible', show);
+backToTop.classList.toggle('visible', show);
+});
+backToTop.addEventListener('click', () => {
+window.scrollTo({ top: 0, behavior: 'smooth' });
+});
 
-    gsap.registerPlugin(ScrollTrigger);
+(function() {
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let w = canvas.width = window.innerWidth, h = canvas.height = window.innerHeight;
+let particles = [];
+const count = Math.min(100, Math.floor((w * h) / 12000));
+const maxDist = 140;
 
-    // Hero stagger - max animation
-    const heroEls = document.querySelectorAll('.hero-el');
-    gsap.fromTo(heroEls, { y: 40, opacity: 0 }, {
-      y: 0, opacity: 1, duration: 1, stagger: 0.12, ease: 'power4.out', delay: 0.3,
-      onComplete: () => {
-        gsap.to('.scroll-hint', { opacity: 1, duration: 0.8, delay: 0.5 });
-        gsap.to('.lang-switcher', { opacity: 1, duration: 0.6 });
-      }
-    });
+class Particle {
+constructor() {
+this.x = Math.random() * w; this.y = Math.random() * h;
+this.vx = (Math.random() - 0.5) * 0.12; this.vy = (Math.random() - 0.5) * 0.12;
+this.r = Math.random() * 2.5 + 0.5; this.opacity = Math.random() * 0.4 + 0.25;
+}
+update() {
+this.x += this.vx; this.y += this.vy;
+if (this.x < 0 || this.x > w) this.vx *= -1;
+if (this.y < 0 || this.y > h) this.vy *= -1;
+}
+}
+for (let i = 0; i < count; i++) particles.push(new Particle());
 
-    gsap.from('.lang-switcher', { x: 20, opacity: 0, duration: 0.8, delay: 1.2, ease: 'power3.out' });
+function getColor() { return (getComputedStyle(document.documentElement).getPropertyValue('--particle-color').trim() || '255,255,255').replace(/\s/g,''); }
+function draw() {
+const c = getColor();
+ctx.clearRect(0, 0, w, h);
+particles.forEach(p => { p.update(); ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(${c},${p.opacity})`; ctx.fill(); });
+particles.forEach((a, i) => {
+particles.slice(i + 1).forEach(b => {
+const dx = a.x - b.x, dy = a.y - b.y, dist = Math.sqrt(dx * dx + dy * dy);
+if (dist < maxDist) {
+ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y);
+ctx.strokeStyle = `rgba(${c},${0.1 * (1 - dist / maxDist)})`; ctx.lineWidth = 0.5; ctx.stroke();
+}
+});
+});
+requestAnimationFrame(draw);
+}
+draw();
+window.addEventListener('resize', () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; });
+})();
 
-    // Section titles - dramatic reveal
-    gsap.utils.toArray('.section-title').forEach((el, i) => {
-      gsap.from(el, {
-        x: -80, opacity: 0, filter: 'blur(8px)',
-        duration: 1.2, ease: 'power4.out',
-        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' }
-      });
-    });
+document.querySelectorAll('.tab-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+btn.classList.add('active');
+const panel = document.getElementById('tab-' + btn.dataset.tab);
+panel.classList.add('active');
+gsap.fromTo(panel.querySelectorAll('.feature-chip'), { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: 'power3.out' });
+});
+});
 
-    // Bento stagger with scale
-    gsap.utils.toArray('.bento-card').forEach((card, i) => {
-      gsap.from(card, {
-        y: 60, opacity: 0, scale: 0.92, rotationX: 8,
-        duration: 1.1, ease: 'back.out(1.2)',
-        scrollTrigger: { trigger: card, start: 'top 90%' },
-        delay: (i % 3) * 0.08
-      });
-    });
+gsap.registerPlugin(ScrollTrigger);
 
-    // Why items
-    gsap.utils.toArray('.why-item').forEach((item, i) => {
-      gsap.from(item, {
-        x: -30, opacity: 0,
-        duration: 0.9, ease: 'power3.out',
-        scrollTrigger: { trigger: '.why-grid', start: 'top 85%' },
-        delay: i * 0.06
-      });
-    });
+const heroEls = document.querySelectorAll('.hero-el');
+gsap.fromTo(heroEls, { y: 40, opacity: 0 }, {
+y: 0, opacity: 1, duration: 1, stagger: 0.12, ease: 'power4.out', delay: 0.3,
+onComplete: () => {
+gsap.to('.scroll-hint', { opacity: 1, duration: 0.8, delay: 0.5 });
+gsap.to('.lang-switcher', { opacity: 1, duration: 0.6 });
+}
+});
 
-    // Screenshots - staggered scale + fade
-    gsap.utils.toArray('.screenshot-item').forEach((item, i) => {
-      gsap.from(item, {
-        y: 50, opacity: 0, scale: 0.9,
-        duration: 1, ease: 'back.out(1.4)',
-        scrollTrigger: { trigger: item, start: 'top 92%' },
-        delay: (i % 5) * 0.05
-      });
-    });
+gsap.from('.lang-switcher', { x: 20, opacity: 0, duration: 0.8, delay: 1.2, ease: 'power3.out' });
 
-    // Feature chips (initial tab)
-    gsap.from('#tab-lang .feature-chip', {
-      y: 30, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'back.out(1.5)',
-      scrollTrigger: { trigger: '#features', start: 'top 80%' }
-    });
+gsap.utils.toArray('.section-title').forEach((el, i) => {
+gsap.from(el, {
+x: -80, opacity: 0, filter: 'blur(8px)',
+duration: 1.2, ease: 'power4.out',
+scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' }
+});
+});
 
-    // Link cards
-    gsap.utils.toArray('.link-card').forEach((card, i) => {
-      gsap.from(card, {
-        y: 35, opacity: 0, rotationY: -5,
-        duration: 0.9, ease: 'power3.out',
-        scrollTrigger: { trigger: card, start: 'top 92%' },
-        delay: i * 0.06
-      });
-    });
+gsap.utils.toArray('.bento-card').forEach((card, i) => {
+gsap.from(card, {
+y: 60, opacity: 0, scale: 0.92, rotationX: 8,
+duration: 1.1, ease: 'back.out(1.2)',
+scrollTrigger: { trigger: card, start: 'top 90%' },
+delay: (i % 4) * 0.08
+});
+});
 
-    // Install CTA - parallax-like scale
-    gsap.from('.install-cta', {
-      y: 50, opacity: 0, scale: 0.98,
-      duration: 1.2, ease: 'power4.out',
-      scrollTrigger: { trigger: '.install-cta', start: 'top 85%' }
-    });
+gsap.utils.toArray('.why-item').forEach((item, i) => {
+gsap.from(item, {
+x: -30, opacity: 0,
+duration: 0.9, ease: 'power3.out',
+scrollTrigger: { trigger: '.why-grid', start: 'top 85%' },
+delay: i * 0.06
+});
+});
 
-    // Donate section
-    gsap.from('.donate-section', {
-      y: 40, opacity: 0,
-      duration: 1, ease: 'power3.out',
-      scrollTrigger: { trigger: '.donate-section', start: 'top 90%' }
-    });
-  </script>
+gsap.utils.toArray('.screenshot-item').forEach((item, i) => {
+gsap.from(item, {
+y: 50, opacity: 0, scale: 0.9,
+duration: 1, ease: 'back.out(1.4)',
+scrollTrigger: { trigger: item, start: 'top 92%' },
+delay: (i % 5) * 0.05
+});
+});
+
+gsap.from('#tab-lang .feature-chip', {
+y: 30, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'back.out(1.5)',
+scrollTrigger: { trigger: '#features', start: 'top 80%' }
+});
+
+gsap.utils.toArray('.link-card').forEach((card, i) => {
+gsap.from(card, {
+y: 35, opacity: 0, rotationY: -5,
+duration: 0.9, ease: 'power3.out',
+scrollTrigger: { trigger: card, start: 'top 92%' },
+delay: i * 0.06
+});
+});
+
+gsap.from('.install-cta', {
+y: 50, opacity: 0, scale: 0.98,
+duration: 1.2, ease: 'power4.out',
+scrollTrigger: { trigger: '.install-cta', start: 'top 85%' }
+});
+
+gsap.from('.donate-section', {
+y: 40, opacity: 0,
+duration: 1, ease: 'power3.out',
+scrollTrigger: { trigger: '.donate-section', start: 'top 90%' }
+});
+</script>
 </body>
 </html>
