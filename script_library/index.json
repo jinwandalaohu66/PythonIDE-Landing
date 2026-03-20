@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 13,
-  "updated": "2026-03-20T13:43:04.881Z",
+  "data_version": 14,
+  "updated": "2026-03-20T14:18:52.520Z",
   "announcement": null,
   "categories": [
     {
@@ -495,6 +495,29 @@
       "updated": null,
       "status": "active",
       "lines": 222
+    },
+    {
+      "id": "script_mmyzioeo",
+      "name": "这就是节假日",
+      "name_en": "这就是节假日",
+      "desc": "节假日小组件",
+      "desc_en": "节假日小组件",
+      "category": "widgets",
+      "file": "scripts/widgets/script_mmyzioeo.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "Silence",
+      "author_en": "Silence",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-03-20",
+      "updated": null,
+      "status": "active",
+      "lines": 85
     }
   ]
 }
