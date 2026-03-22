@@ -5,10 +5,10 @@ import math
 
 class StickBridgeCN(Scene):
     def setup(self):
-        self._init_game()
-        self._start_new_run()
-
-    def _init_game(self):
+        # 调用父类初始化
+        super().setup()
+        
+        # 初始化所有游戏变量
         self.sky_color = (0.55, 0.82, 0.98)
         self.ocean_color_top = (0.20, 0.62, 0.86)
         self.ocean_color_mid = (0.12, 0.45, 0.74)
@@ -45,8 +45,9 @@ class StickBridgeCN(Scene):
         self.success = False
         self.perfect = False
 
-        self.grow_speed = self.size.h * 0.95
-        self.rotate_speed = math.pi * 1.8
+        # 降低速度参数：桥的生长和旋转速度
+        self.grow_speed = self.size.h * 0.3  # 从 0.95 降低到 0.3，更慢的生长速度
+        self.rotate_speed = math.pi * 0.8    # 从 1.8 降低到 0.8，更慢的旋转速度
         self.walk_speed = self.size.w * 0.52
         self.fall_g = self.size.h * 2.4
 
@@ -72,6 +73,13 @@ class StickBridgeCN(Scene):
         self.hint_text = '按住蓄力，松手放桥'
 
         self.ui_top_inset = max(26, self.size.h * 0.035)
+        
+        # 开始游戏
+        self._start_new_run()
+
+    def _init_game(self):
+        """已弃用 - 所有初始化已移到 setup() 方法中"""
+        pass
 
     def _generate_right_pillar(self):
         min_gap = self.size.w * 0.18
