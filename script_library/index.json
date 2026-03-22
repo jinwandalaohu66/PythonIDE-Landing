@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 17,
-  "updated": "2026-03-22T19:54:07.067Z",
+  "data_version": 18,
+  "updated": "2026-03-22T20:11:11Z",
   "announcement": null,
   "categories": [
     {
@@ -580,6 +580,30 @@
       "author_en": "淮季",
       "tags": [
         "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-03-22",
+      "updated": null,
+      "status": "active",
+      "lines": 971
+    },
+    {
+      "id": "community_web_crawler__by_淮季",
+      "name": "web_crawler — by 淮季",
+      "name_en": "web_crawler — by 淮季",
+      "desc": "[投稿] web_crawler — by 淮季",
+      "desc_en": "[投稿] web_crawler — by 淮季",
+      "category": "basic",
+      "file": "scripts/basic/web_crawler_mn26vr7b.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "社区投稿",
+      "author_en": "社区投稿",
+      "tags": [
+        "community",
+        "basic"
       ],
       "requires": [],
       "min_app_version": "1.5.0",
