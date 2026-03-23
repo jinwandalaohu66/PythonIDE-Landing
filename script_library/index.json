@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 18,
-  "updated": "2026-03-23T13:08:52.777Z",
+  "data_version": 19,
+  "updated": "2026-03-23T13:11:29.200Z",
   "announcement": null,
   "categories": [
     {
@@ -610,6 +610,29 @@
       "updated": null,
       "status": "active",
       "lines": 100
+    },
+    {
+      "id": "cookie_2_0_mn37fkak",
+      "name": "Cookie解析2.0",
+      "name_en": "Cookie解析2.0",
+      "desc": "相比头一个版本这次咱不用复制粘贴进去了麻烦死了😂，仅需把你自己抓到的 Cookie 拷贝，运行脚本 它会自动获取解析，生成文件在本 app文档部分。🐽",
+      "desc_en": "相比头一个版本这次咱不用复制粘贴进去了麻烦死了😂，仅需把你自己抓到的 Cookie 拷贝，运行脚本 它会自动获取解析，生成文件在本 app文档部分。🐽",
+      "category": "basic",
+      "file": "scripts/basic/cookie_2_0_mn37fkak.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "Silence",
+      "author_en": "Silence",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-03-23",
+      "updated": null,
+      "status": "active",
+      "lines": 92
     }
   ]
 }
