@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 22,
-  "updated": "2026-03-23T15:51:27.174Z",
+  "data_version": 23,
+  "updated": "2026-03-23T15:51:33.960Z",
   "announcement": null,
   "categories": [
     {
@@ -401,7 +401,7 @@
       "min_app_version": "1.5.0",
       "added": "2026-03-19",
       "updated": null,
-      "status": "active",
+      "status": "removed",
       "lines": 96
     },
     {
