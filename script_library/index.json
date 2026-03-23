@@ -447,7 +447,7 @@
       "min_app_version": "1.5.0",
       "added": "2026-03-19",
       "updated": null,
-      "status": "active",
+      "removed": "active",
       "lines": 85
     },
     {
@@ -470,7 +470,7 @@
       "min_app_version": "1.5.0",
       "added": "2026-03-20",
       "updated": null,
-      "status": "active",
+      "removed": "active",
       "lines": 51
     },
     {
