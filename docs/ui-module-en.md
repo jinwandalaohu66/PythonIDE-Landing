@@ -24,8 +24,10 @@
 16. [TableView](#16-tableview)
 17. [WebView](#17-webview)
 18. [ActivityIndicator](#18-activityindicator)
+18b. [ProgressView](#18b-progressview)
+18c. [Stepper](#18c-stepper)
 19. [NavigationView](#19-navigationview)
-20. [Custom View and Drawing](#20-custom-view-and-drawing)
+20. [Custom View and Drawing](#20-custom-view-and-drawing) (incl. Path, Image, ImageContext updates)
 21. [load_view and load_view_str](#21-load_view-and-load_view_str)
 22. [animate and Utility Functions](#22-animate-and-utility-functions)
 23. [Constants and Enums](#23-constants-and-enums)
@@ -63,6 +65,8 @@ The built-in `ui` module in Python IDE provides native iOS UI capabilities that 
 | Table view | `ui.TableView` | List display; data_source, action, delegate |
 | Web view | `ui.WebView` | Load URL or HTML; supports eval_js |
 | Activity indicator | `ui.ActivityIndicator` | Loading spinner |
+| Progress view | `ui.ProgressView` | Linear progress bar (0–1) |
+| Stepper | `ui.Stepper` | +/- buttons with range and step |
 | Navigation view | `ui.NavigationView` | Stack-based navigation with navigation bar |
 | Canvas view | `ui.CanvasView` | Custom drawing; override draw |
 
@@ -176,6 +180,10 @@ v = ui.View(frame=(0, 0, 320, 480))
 | `touch_enabled` | `bool` | Whether view receives touches; default True |
 | `multitouch_enabled` | `bool` | Multi-touch; default False |
 | `transform` | `ui.Transform` or `None` | Affine transform |
+| `clips_to_bounds` | `bool` | Clip subviews to view bounds |
+| `accessibility_label` | `str` | VoiceOver label |
+| `accessibility_value` | `str` | VoiceOver value |
+| `accessibility_hint` | `str` | VoiceOver hint |
 | `title` | `str` | Navigation bar title when presented |
 | `left_button_items` | `tuple` | Left bar button items |
 | `right_button_items` | `tuple` | Right bar button items |
@@ -200,7 +208,13 @@ v.background_color = '#ff000080'      # With alpha
 | `remove_from_superview()` | Remove self from parent |
 | `bring_to_front()` | Move to front of siblings |
 | `send_to_back()` | Move to back of siblings |
+| `bring_subview_to_front(subview)` | Bring specific subview to front |
+| `send_subview_to_back(subview)` | Send specific subview to back |
 | `set_needs_display()` | Mark as needing redraw |
+| `set_needs_layout()` | Request layout update |
+| `size_to_fit()` | Resize to fit content |
+| `point_from_window(point)` | Convert window coords to view coords |
+| `point_to_window(point)` | Convert view coords to window coords |
 
 ### Read-Only Properties
 
@@ -320,6 +334,9 @@ btn = ui.Button(frame=(50, 100, 200, 44))
 |----------|------|-------------|
 | `title` | `str` | Button title |
 | `title_color` | `str` or `tuple` | Title color |
+| `font` | `tuple` or `str` | Font, e.g. `('Helvetica-Bold', 18)` |
+| `image` | `ui.Image` | Foreground image |
+| `background_image` | `ui.Image` | Background image |
 | `enabled` | `bool` | Whether tap is enabled; default True |
 
 ### action Callback
@@ -399,16 +416,23 @@ tf = ui.TextField(text='Initial value')
 | `text` | `str` | Current text |
 | `placeholder` | `str` | Placeholder |
 | `text_color` | `str` or `tuple` | Text color |
+| `font` | `tuple` | Font, e.g. `('Helvetica', 16)` |
 | `alignment` | `int` | Alignment |
 | `secure` | `bool` | Password input (masked) |
 | `keyboard_type` | `int` | Keyboard type |
+| `autocapitalization_type` | `int` | Auto-caps (`0` none / `1` words / `2` sentences / `3` all) |
+| `autocorrection_type` | `int` | Auto-correct (`0` default / `1` off / `2` on) |
+| `spellchecking_type` | `int` | Spellcheck (`0` default / `1` off / `2` on) |
+| `clear_button_mode` | `int` | Clear button (`0` never / `1` while editing / `3` always) |
+| `return_key_type` | `int` | Return key (`0` default / `4` Search / `9` Done, etc.) |
+| `bordered` | `bool` | Show border style |
 
-### action Callback
-
-Fired when editing ends (blur or return):
+### Callbacks
 
 ```python
-tf.action = lambda sender: print('Input:', sender.text)
+tf.action = lambda sender: print('Input:', sender.text)           # Return / blur
+tf.began_editing = lambda sender: print('Editing started')        # Focus gained
+tf.ended_editing = lambda sender: print('Editing ended')          # Focus lost
 ```
 
 ---
@@ -431,6 +455,18 @@ tv = ui.TextView(text='Multi-line content')
 | `selectable` | `bool` | Whether selectable |
 | `text_color` | `str` or `tuple` | Text color |
 | `font` | `(name, size)` | Font |
+| `alignment` | `int` | Text alignment `ui.ALIGN_*` |
+| `selected_range` | `(start, length)` | Current selection range |
+| `content_size` | `(w, h)` | Read-only, text content size |
+| `content_offset` | `(x, y)` | Scroll offset |
+| `auto_content_inset` | `bool` | Auto-adjust inset for keyboard |
+
+### Callbacks
+
+```python
+tv.began_editing = lambda sender: print('Editing started')
+tv.ended_editing = lambda sender: print('Editing ended')
+```
 
 ### delegate
 
@@ -439,6 +475,7 @@ Set an object implementing:
 | Method | Description |
 |--------|-------------|
 | `textview_did_begin_editing(textview)` | Fired when editing starts |
+| `textview_did_change(textview)` | Fired when content changes |
 | `textview_did_end_editing(textview)` | Fired when editing ends |
 
 ```python
@@ -606,6 +643,11 @@ sv.content_size = (320, 800)
 | `always_bounce_vertical` | `bool` | Always bounce vertically |
 | `scroll_enabled` | `bool` | Whether scrolling is enabled |
 | `paging_enabled` | `bool` | Paging mode |
+| `shows_vertical_scroll_indicator` | `bool` | Show vertical scroll indicator |
+| `shows_horizontal_scroll_indicator` | `bool` | Show horizontal scroll indicator |
+| `zoom_scale` | `float` | Current zoom scale |
+| `min_zoom_scale` | `float` | Minimum zoom scale |
+| `max_zoom_scale` | `float` | Maximum zoom scale |
 
 ### Methods
 
@@ -657,6 +699,14 @@ tv.frame = (0, 0, 320, 400)
 | `data_source` | `list` | Data; see format below |
 | `action` | `callable` | Row selection callback |
 | `delegate` | `object` | Delegate object |
+| `row_height` | `float` | Default row height |
+| `editing` | `bool` | Whether in editing mode |
+| `selected_row` | `tuple` | Currently selected row `(section, row)` |
+| `separator_color` | `str` or `tuple` | Separator line color |
+| `allows_selection` | `bool` | Whether selection is enabled |
+| `allows_multiple_selection` | `bool` | Whether multi-selection is enabled |
+| `delete_enabled` | `bool` | Whether swipe-to-delete is enabled |
+| `move_enabled` | `bool` | Whether drag-to-reorder is enabled |
 
 ### data_source Format
 
@@ -754,6 +804,56 @@ ai.stop()    # or ai.stop_animating()
 
 ---
 
+## 18b. ProgressView
+
+### Creation
+
+```python
+pv = ui.ProgressView()
+pv.frame = (20, 100, 280, 10)
+pv.progress = 0.5  # 50%
+```
+
+### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `progress` | `float` | Progress value, 0.0 to 1.0 |
+| `progress_tint_color` | `str` or `tuple` | Completed portion color |
+| `track_tint_color` | `str` or `tuple` | Track (remaining) color |
+
+---
+
+## 18c. Stepper
+
+### Creation
+
+```python
+st = ui.Stepper()
+st.frame = (100, 100, 94, 29)
+```
+
+### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `value` | `float` | Current value |
+| `minimum_value` | `float` | Minimum (default 0) |
+| `maximum_value` | `float` | Maximum (default 100) |
+| `step_value` | `float` | Step increment (default 1) |
+| `continuous` | `bool` | Continuous change on long press |
+| `wraps` | `bool` | Wrap around when exceeding range |
+| `tint_color` | `str` or `tuple` | Tint color |
+| `enabled` | `bool` | Whether enabled |
+
+### Callback
+
+```python
+st.action = lambda sender: print('Value:', sender.value)
+```
+
+---
+
 ## 19. NavigationView
 
 See [5. present and Display](#5-present-and-display).
@@ -815,19 +915,54 @@ cv.render = draw_canvas
 | `path.move_to(x, y)` / `path.line_to(x, y)` | Line path |
 | `path.add_arc(...)` | Arc |
 | `path.add_curve(...)` | Bezier curve |
+| `path.add_rect(x, y, w, h)` | Rectangle sub-path |
+| `path.add_oval(x, y, w, h)` | Oval sub-path |
+| `path.copy()` | Deep copy of path |
+| `path.hit_test(x, y)` | Test if point is inside path |
+| `path.get_bounding_box()` | Bounding rect `(x, y, w, h)` |
 | `GState()` | Save / restore state |
 | `ui.set_blend_mode(mode)` | Blend mode |
 | `ui.set_shadow(...)` | Shadow |
 
 ### ImageContext
 
+**Method 1: Context manager (recommended)**
+
 ```python
 with ui.ImageContext(200, 200) as ctx:
     ui.set_color('blue')
     ui.fill_rect(0, 0, 200, 200)
-    # ... more drawing ...
-    img = ctx.get_image()  # Returns PIL.Image
+    img = ctx.get_image()  # ui.Image
 ```
+
+**Method 2: Functional API**
+
+```python
+ui.begin_image_context(200, 200)
+ui.set_color('red')
+ui.fill_rect(0, 0, 200, 200)
+img = ui.get_image_from_current_context()  # ui.Image
+ui.end_image_context()
+```
+
+### Image Class
+
+| Entry | Description |
+|-------|-------------|
+| `ui.Image.named(name)` | Built-in or bundled resource |
+| `ui.Image.from_data(data)` | From bytes |
+| `ui.Image.from_image_context()` | From current offscreen context |
+| `ui.Image(name)` | Equivalent to `Image.named(name)` |
+
+| Property / Method | Description |
+|-------------------|-------------|
+| `size` | `(w, h)` |
+| `to_png()` | PNG `bytes` |
+| `resized(size)` | Resized copy |
+| `cropped(rect)` | Cropped copy |
+| `crop(rect)` | Crop `(x, y, w, h)`; native implementation |
+| `clip_to_mask(mask)` | Clip using another Image's alpha channel |
+| `with_rendering_mode(mode)` | Template / original rendering mode |
 
 ---
 

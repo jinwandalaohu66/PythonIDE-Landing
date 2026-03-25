@@ -7,11 +7,11 @@
 
 ## 目录
 
-1. [控件与类型参考（30+）](#控件与类型参考30)
+1. [控件与类型参考（30+）](#控件与类型参考30)（含 ProgressView、Stepper）
 2. [手势识别器](#手势识别器)
-3. [自定义绘图](#自定义绘图)
-4. [`Image` 类](#image-类)
-5. [模块级函数](#模块级函数)
+3. [自定义绘图](#自定义绘图)（含 `Path.copy` / `hit_test` / `get_bounding_box`）
+4. [`Image` 类](#image-类)（含 `crop` / `clip_to_mask` / `from_image_context`）
+5. [模块级函数](#模块级函数)（含 `begin/end_image_context`）
 6. [常量](#常量)
 7. [`flex` 自适应布局](#flex-自适应布局)
 8. [完整示例](#完整示例)
@@ -41,7 +41,10 @@
 | | `corner_radius` | 圆角半径 |
 | | `border_width`, `border_color` | 边框 |
 | | `content_mode` | 内容缩放/对齐，见 [常量 · 内容模式](#内容模式-content_mode) |
-| | `clips_to_bounds` | 是否裁剪子视图到边界（Pythonista 标准属性） |
+| | `clips_to_bounds` | 是否裁剪子视图到边界 |
+| **无障碍** | `accessibility_label` | 无障碍标签（VoiceOver 朗读） |
+| | `accessibility_value` | 无障碍值 |
+| | `accessibility_hint` | 无障碍提示 |
 | **交互** | `user_interaction_enabled` | 是否响应触摸（部分环境亦提供别名 `touch_enabled`） |
 | | `multiple_touch_enabled` | 是否允许多指（别名 `multitouch_enabled`） |
 | **其它** | `name` | 名称，便于 `load_view` 与子视图查找 |
@@ -60,8 +63,11 @@
 | `remove_subview(view)` | 移除指定子视图 |
 | `remove_from_superview()` | 从父视图移除自身 |
 | `bring_to_front()` / `send_to_back()` | 调整绘制顺序 |
+| `bring_subview_to_front(subview)` / `send_subview_to_back(subview)` | 调整指定子视图层级 |
 | `set_needs_display()` | 请求重绘（配合 `draw`） |
-| `size_to_fit()` | 按内容收缩尺寸（Pythonista 标准；具体控件支持度因实现而异） |
+| `set_needs_layout()` / `update_layout()` | 请求布局更新 |
+| `size_to_fit()` | 按内容收缩尺寸 |
+| `point_from_window(point)` / `point_to_window(point)` | 窗口坐标与视图坐标互转 |
 | `layout()` | 布局更新时调用；可子类重写以自定义布局 |
 | `present(style, animated=True, hide_title_bar=False, **kwargs)` | 模态展示。`style`：`'sheet'`、`'fullscreen'` / `'full_screen'`、`'popover'`、`'panel'` 等 |
 | `close()` | 关闭当前展示 |
@@ -75,6 +81,7 @@
 |------|------|
 | `draw(self, rect)` | 自定义绘制；`rect` 为需更新的区域（元组或矩形） |
 | `layout(self)` | `bounds` 变化后的布局 |
+| `keyboard_frame_did_change(self, frame)` | 键盘显示/隐藏时调用 |
 | `touch_began` / `touch_moved` / `touch_ended` | 触摸生命周期（若启用） |
 | `will_close(self)` | 即将关闭时 |
 
@@ -130,15 +137,20 @@
 | `alignment` | 水平对齐 |
 | `secure_text_entry` | 密码遮蔽（Pythonista 名；亦常见别名 `secure`） |
 | `keyboard_type` | 见 [键盘类型](#键盘类型-keyboard_type) |
-| `autocorrection_type` | 自动更正 |
-| `spellchecking_type` | 拼写检查 |
+| `autocorrection_type` | 自动更正（`0` 默认 / `1` 关闭 / `2` 开启） |
+| `autocapitalization_type` | 自动大写（`0` 无 / `1` 单词 / `2` 句子 / `3` 全部） |
+| `spellchecking_type` | 拼写检查（`0` 默认 / `1` 关闭 / `2` 开启） |
+| `clear_button_mode` | 清除按钮出现时机（`0` 不显示 / `1` 编辑时 / `2` 非编辑时 / `3` 始终） |
+| `return_key_type` | 回车键类型（`0` 默认 / `4` Search / `6` Send / `9` Done 等） |
 | `enabled` | 是否可编辑 |
 | `bordered` | 是否显示边框样式 |
 
 **回调**
 
 - `action`：编辑结束或按下回车等（依平台行为）。
-- `delegate`：对象实现 `textfield_*` 系列方法（如 `textfield_should_begin_editing`、`textfield_did_change` 等，名称以实际运行环境为准）。
+- `began_editing`：开始编辑时回调 `began_editing(sender)`。
+- `ended_editing`：结束编辑时回调 `ended_editing(sender)`。
+- `delegate`：对象实现 `textfield_*` 系列方法（如 `textfield_should_begin_editing`、`textfield_did_change` 等）。
 
 ---
 
@@ -154,9 +166,17 @@
 | `alignment` | 对齐 |
 | `editable` | 是否可编辑 |
 | `selectable` | 是否可选择 |
+| `alignment` | 文本对齐 `ui.ALIGN_*` |
+| `selected_range` | 选中范围 `(start, length)` |
+| `content_size` | 只读，内容尺寸 `(w, h)` |
+| `content_offset` | 滚动偏移 `(x, y)` |
 | `auto_content_inset` | 是否自动调整内容边距（随安全区/键盘） |
 
-**回调**：`delegate` — 如 `textview_did_begin_editing`、`textview_did_change`、`textview_did_end_editing` 等。
+**回调**
+
+- `delegate` — 如 `textview_did_begin_editing`、`textview_did_change`、`textview_did_end_editing` 等。
+- `began_editing`：开始编辑时回调 `began_editing(sender)`。
+- `ended_editing`：结束编辑时回调 `ended_editing(sender)`。
 
 ---
 
@@ -185,6 +205,8 @@
 | `scroll_enabled` | 是否允许滚动 |
 | `always_bounce_vertical` / `always_bounce_horizontal` | 内容不足时是否仍可弹性 |
 | `shows_vertical_scroll_indicator` / `shows_horizontal_scroll_indicator` | 是否显示滚动条 |
+| `zoom_scale` | 当前缩放比例 |
+| `min_zoom_scale` / `max_zoom_scale` | 最小/最大缩放比例 |
 
 **方法**：`scroll_to(x, y, animated=True)` — 滚动到指定偏移。
 
@@ -201,6 +223,11 @@
 | `row_height` | 默认行高 |
 | `editing` | 是否处于编辑模式 |
 | `selected_row` | 当前选中行（元组或索引，依实现） |
+| `separator_color` | 分隔线颜色 |
+| `allows_selection` | 是否允许选中 |
+| `allows_multiple_selection` | 是否允许多选 |
+| `delete_enabled` | 是否允许左滑删除 |
+| `move_enabled` | 是否允许拖拽排序 |
 
 **方法**
 
@@ -316,7 +343,34 @@
 
 ---
 
-### 16–30+. 其它常用类型（几何、导航、手势、绘图）
+### 16. `ProgressView` — `ui.ProgressView()`
+
+| 属性 | 说明 |
+|------|------|
+| `progress` | `0.0`–`1.0`，当前进度 |
+| `progress_tint_color` | 已完成部分颜色 |
+| `track_tint_color` | 未完成部分（轨道）颜色 |
+
+---
+
+### 17. `Stepper` — `ui.Stepper()`
+
+| 属性 | 说明 |
+|------|------|
+| `value` | 当前数值（`float`） |
+| `minimum_value` | 最小值（默认 `0`） |
+| `maximum_value` | 最大值（默认 `100`） |
+| `step_value` | 步进值（默认 `1`） |
+| `continuous` | 长按是否连续变化 |
+| `wraps` | 超出范围时是否循环 |
+| `tint_color` | 着色 |
+| `enabled` | 是否可用 |
+
+**回调**：`action(sender)`，`sender.value` 可取当前值。
+
+---
+
+### 18–30+. 其它常用类型（几何、导航、手势、绘图）
 
 | 类型 | 作用 |
 |------|------|
@@ -331,8 +385,10 @@
 | `ui.GestureSender` | 手势回调中的 `sender` 信息 |
 | `ui.TableViewCell` | 表格行单元格容器 |
 | `ui.ListDataSource` | 表格数据源基类 |
+| `ui.ProgressView` | 线性进度条（0–1 进度） |
+| `ui.Stepper` | 步进器（+/- 按钮，可设范围与步长） |
 | `ui.CanvasView` | 通过 `render(draw_func)` 将绘图结果呈现为位图贴图 |
-| `ui.Path` | 矢量路径绘制 |
+| `ui.Path` | 矢量路径绘制（含 `copy`、`hit_test`、`get_bounding_box`） |
 | `ui.GState` | `with ui.GState():` 保存/恢复绘图状态 |
 | `ui.ImageContext` | 离屏位图上下文 |
 | `ui.Image` | 位图对象 |
@@ -385,10 +441,14 @@ view.remove_gesture_recognizer(gr)
 | `curve_to(cp1x, cp1y, cp2x, cp2y, x, y)` | 三次贝塞尔到 `(x,y)`（部分实现为 `add_curve`） |
 | `add_arc(cx, cy, r, start, end, clockwise=True)` | 圆弧 |
 | `add_rect(x, y, w, h)` | 矩形子路径 |
+| `add_oval(x, y, w, h)` | 椭圆子路径（内接于给定矩形） |
 | `add_rounded_rect(x, y, w, h, r)` | 圆角矩形；或类方法 `Path.rounded_rect(...)` |
 | `close()` | 闭合子路径 |
 | `fill()` / `stroke()` | 填充 / 描边 |
 | `set_line_width(w)` | 线宽 |
+| `copy()` | 返回路径的深拷贝 |
+| `hit_test(x, y)` | 判断点是否在路径内部，返回 `bool` |
+| `get_bounding_box()` | 返回路径外接矩形 `(x, y, w, h)` |
 | `eo_fill_rule` | 奇偶填充规则（属性） |
 
 ### 全局绘图状态
@@ -404,7 +464,7 @@ view.remove_gesture_recognizer(gr)
 
 ### 离屏图像
 
-Pythonista 风格常用上下文管理器：
+**方式一：上下文管理器（推荐）**
 
 ```python
 with ui.ImageContext(width, height) as ctx:
@@ -413,7 +473,17 @@ with ui.ImageContext(width, height) as ctx:
     img = ctx.get_image()   # ui.Image
 ```
 
-部分文档亦写作 `ui.begin_image_context(w, h, scale)` / `ui.end_image_context()`，与 `ImageContext` 等价语义。
+**方式二：函数式 API**
+
+```python
+ui.begin_image_context(width, height, scale=0)
+ui.set_color('red')
+ui.fill_rect(0, 0, width, height)
+img = ui.get_image_from_current_context()  # ui.Image
+ui.end_image_context()
+```
+
+两种方式等价，均可配合 `ui.set_color`、`ui.fill_rect`、`ui.Path` 等绘图函数使用。
 
 ---
 
@@ -423,6 +493,7 @@ with ui.ImageContext(width, height) as ctx:
 |------|------|
 | `ui.Image.named(name)` | 内置或捆绑资源名 |
 | `ui.Image.from_data(data)` | 自字节加载 |
+| `ui.Image.from_image_context()` | 获取当前离屏上下文的 Image |
 | `ui.Image(name)` | 常见等价于 `Image.named(name)` |
 
 | 属性 / 方法 | 说明 |
@@ -432,6 +503,8 @@ with ui.ImageContext(width, height) as ctx:
 | `with_rendering_mode(mode)` | 模板/原色渲染模式 |
 | `resized(size)` | 缩放副本 |
 | `cropped(rect)` | 裁剪副本 |
+| `crop(rect)` | 裁剪副本（rect 为 `(x, y, w, h)` 元组），原生实现，支持 Pillow 回退 |
+| `clip_to_mask(mask)` | 使用另一个 Image 的 alpha 通道裁剪，返回新 Image |
 
 ---
 
@@ -450,6 +523,9 @@ with ui.ImageContext(width, height) as ctx:
 | `ui.parse_color(color_str)` | 归一化 `(r, g, b, a)`，`0.0`–`1.0` |
 | `ui.convert_rect(rect, from_view, to_view)` | 坐标转换；返回 `Rect` 或 `(x, y, w, h)` |
 | `ui.measure_string(text, max_width, font, ...)` | 文本测量 |
+| `ui.begin_image_context(w, h, scale=0)` | 开始离屏绘图上下文（与 `ImageContext` 等价的函数式 API） |
+| `ui.end_image_context()` | 结束并关闭当前离屏上下文 |
+| `ui.get_image_from_current_context()` | 从当前离屏上下文获取 `ui.Image` |
 | `ui.close_all(animated=False)` | 关闭全部已展示 UI（扩展） |
 | `ui.dump_view(view)` | 打印视图树（调试） |
 
@@ -676,4 +752,4 @@ if __name__ == '__main__':
 
 ---
 
-*文档版本：与项目 `ui` 模块（Pythonista 兼容层）对照整理，便于脚本编写与 AI 辅助开发引用。*
+*文档版本：v2.0 — 全面更新，新增 `ProgressView`、`Stepper`、`TextField` / `TextView` 扩展属性与回调、`ScrollView` 缩放属性、`TableView` 编辑属性、`Path.copy / hit_test / get_bounding_box`、`Image.crop / clip_to_mask`、`begin_image_context / end_image_context / get_image_from_current_context` 等。与项目 `ui` 模块（Pythonista 兼容层）对照整理，便于脚本编写与 AI 辅助开发引用。*

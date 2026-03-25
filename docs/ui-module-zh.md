@@ -24,8 +24,10 @@
 16. [TableView 表格视图](#16-tableview-表格视图)
 17. [WebView 网页视图](#17-webview-网页视图)
 18. [ActivityIndicator 加载指示器](#18-activityindicator-加载指示器)
+18b. [ProgressView 进度条](#18b-progressview-进度条)
+18c. [Stepper 步进器](#18c-stepper-步进器)
 19. [NavigationView 导航视图](#19-navigationview-导航视图)
-20. [自定义 View 与绘图](#20-自定义-view-与绘图)
+20. [自定义 View 与绘图](#20-自定义-view-与绘图)（含 Path 新方法、Image 新方法、函数式 ImageContext）
 21. [load_view 与 load_view_str](#21-load_view-与-load_view_str)
 22. [animate 与工具函数](#22-animate-与工具函数)
 23. [常量与枚举](#23-常量与枚举)
@@ -63,6 +65,8 @@ Python IDE 内置的 `ui` 模块提供与 [Pythonista](https://omz-software.com/
 | 表格视图 | `ui.TableView` | 列表展示，支持 data_source、action、delegate |
 | 网页视图 | `ui.WebView` | 加载 URL 或 HTML，支持 eval_js |
 | 加载指示器 | `ui.ActivityIndicator` | 转圈加载动画 |
+| 进度条 | `ui.ProgressView` | 线性进度条（0~1 进度） |
+| 步进器 | `ui.Stepper` | +/- 按钮，可设范围与步长 |
 | 导航视图 | `ui.NavigationView` | 带导航栏的栈式页面管理 |
 | 画布视图 | `ui.CanvasView` | 自绘视图，重写 draw 方法 |
 
@@ -176,6 +180,10 @@ v = ui.View(frame=(0, 0, 320, 480))  # 可指定初始 frame
 | `touch_enabled` | `bool` | 是否响应触摸，默认 True |
 | `multitouch_enabled` | `bool` | 是否支持多点触控，默认 False |
 | `transform` | `ui.Transform` 或 `None` | 仿射变换 |
+| `clips_to_bounds` | `bool` | 是否裁剪超出边界的子视图 |
+| `accessibility_label` | `str` | 无障碍标签（VoiceOver 朗读） |
+| `accessibility_value` | `str` | 无障碍值 |
+| `accessibility_hint` | `str` | 无障碍提示 |
 | `title` | `str` | 展示时的导航栏标题（present 时生效） |
 | `left_button_items` | `tuple` | 导航栏左侧按钮项列表 |
 | `right_button_items` | `tuple` | 导航栏右侧按钮项列表 |
@@ -202,7 +210,13 @@ v.background_color = '#ff000080'      # 含 alpha
 | `remove_from_superview()` | 从父视图中移除自己 |
 | `bring_to_front()` | 移到同层级最前面 |
 | `send_to_back()` | 移到同层级最后面 |
+| `bring_subview_to_front(subview)` | 将指定子视图移到最前面 |
+| `send_subview_to_back(subview)` | 将指定子视图移到最后面 |
 | `set_needs_display()` | 标记需要重绘（自定义 View 的 draw 会被调用） |
+| `set_needs_layout()` | 请求布局更新 |
+| `size_to_fit()` | 按内容自动收缩尺寸 |
+| `point_from_window(point)` | 将窗口坐标转为视图坐标 |
+| `point_to_window(point)` | 将视图坐标转为窗口坐标 |
 
 ### 只读属性
 
@@ -325,6 +339,9 @@ btn = ui.Button(frame=(50, 100, 200, 44))
 |------|------|------|
 | `title` | `str` | 按钮标题文字 |
 | `title_color` | `str` 或 `tuple` | 标题颜色 |
+| `font` | `tuple` 或 `str` | 字体，如 `('Helvetica-Bold', 18)` |
+| `image` | `ui.Image` | 前景图 |
+| `background_image` | `ui.Image` | 背景图 |
 | `enabled` | `bool` | 是否可点击，默认 True |
 
 ### action 回调
@@ -414,16 +431,23 @@ tf = ui.TextField(text='初始值')
 | `text` | `str` | 当前输入的文本 |
 | `placeholder` | `str` | 占位提示文字 |
 | `text_color` | `str` 或 `tuple` | 文字颜色 |
+| `font` | `tuple` | 字体，如 `('Helvetica', 16)` |
 | `alignment` | `int` | 对齐方式 |
 | `secure` | `bool` | 是否为密码输入（遮罩显示） |
 | `keyboard_type` | `int` | 键盘类型 |
+| `autocapitalization_type` | `int` | 自动大写（`0` 无 / `1` 单词 / `2` 句子 / `3` 全部） |
+| `autocorrection_type` | `int` | 自动更正（`0` 默认 / `1` 关闭 / `2` 开启） |
+| `spellchecking_type` | `int` | 拼写检查（`0` 默认 / `1` 关闭 / `2` 开启） |
+| `clear_button_mode` | `int` | 清除按钮出现时机（`0` 不显示 / `1` 编辑时 / `3` 始终） |
+| `return_key_type` | `int` | 回车键类型（`0` 默认 / `4` Search / `9` Done 等） |
+| `bordered` | `bool` | 是否显示边框样式 |
 
-### action 回调
-
-编辑完成（失去焦点或按回车）时调用：
+### 回调
 
 ```python
-tf.action = lambda sender: print('输入内容:', sender.text)
+tf.action = lambda sender: print('输入内容:', sender.text)          # 回车/失焦
+tf.began_editing = lambda sender: print('开始编辑')                  # 获取焦点
+tf.ended_editing = lambda sender: print('结束编辑')                  # 失去焦点
 ```
 
 ---
@@ -446,6 +470,18 @@ tv = ui.TextView(text='多行文本内容')
 | `selectable` | `bool` | 是否可选中等 |
 | `text_color` | `str` 或 `tuple` | 文字颜色 |
 | `font` | `(name, size)` | 字体 |
+| `alignment` | `int` | 文本对齐 `ui.ALIGN_*` |
+| `selected_range` | `(start, length)` | 当前选中范围 |
+| `content_size` | `(w, h)` | 只读，文本内容尺寸 |
+| `content_offset` | `(x, y)` | 滚动偏移 |
+| `auto_content_inset` | `bool` | 是否自动适应键盘边距 |
+
+### 回调
+
+```python
+tv.began_editing = lambda sender: print('开始编辑')
+tv.ended_editing = lambda sender: print('结束编辑')
+```
 
 ### delegate 委托
 
@@ -454,6 +490,7 @@ tv = ui.TextView(text='多行文本内容')
 | 方法 | 说明 |
 |------|------|
 | `textview_did_begin_editing(textview)` | 开始编辑时调用 |
+| `textview_did_change(textview)` | 内容变化时调用 |
 | `textview_did_end_editing(textview)` | 结束编辑时调用 |
 
 ```python
@@ -625,6 +662,11 @@ sv.content_size = (320, 800)  # 内容区域尺寸
 | `always_bounce_vertical` | `bool` | 垂直方向是否始终回弹 |
 | `scroll_enabled` | `bool` | 是否允许滚动 |
 | `paging_enabled` | `bool` | 是否分页滚动 |
+| `shows_vertical_scroll_indicator` | `bool` | 是否显示垂直滚动条 |
+| `shows_horizontal_scroll_indicator` | `bool` | 是否显示水平滚动条 |
+| `zoom_scale` | `float` | 当前缩放比例 |
+| `min_zoom_scale` | `float` | 最小缩放比例 |
+| `max_zoom_scale` | `float` | 最大缩放比例 |
 
 ### 方法
 
@@ -681,6 +723,14 @@ tv.frame = (0, 0, 320, 400)
 | `data_source` | `list` | 数据源，见下方格式 |
 | `action` | `callable` | 行选择回调 |
 | `delegate` | `object` | 委托对象 |
+| `row_height` | `float` | 默认行高 |
+| `editing` | `bool` | 是否处于编辑模式 |
+| `selected_row` | `tuple` | 当前选中行 `(section, row)` |
+| `separator_color` | `str` 或 `tuple` | 分隔线颜色 |
+| `allows_selection` | `bool` | 是否允许选中 |
+| `allows_multiple_selection` | `bool` | 是否允许多选 |
+| `delete_enabled` | `bool` | 是否允许左滑删除 |
+| `move_enabled` | `bool` | 是否允许拖拽排序 |
 
 ### data_source 格式
 
@@ -780,6 +830,94 @@ ai.stop()    # 或 ai.stop_animating()
 
 ---
 
+## 18b. ProgressView 进度条
+
+### 创建
+
+```python
+pv = ui.ProgressView()
+pv.frame = (20, 100, 280, 10)
+pv.progress = 0.5  # 50%
+```
+
+### 属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `progress` | `float` | 进度值，0.0 ~ 1.0 |
+| `progress_tint_color` | `str` 或 `tuple` | 已完成部分颜色 |
+| `track_tint_color` | `str` 或 `tuple` | 未完成部分（轨道）颜色 |
+
+### 示例
+
+```python
+import ui
+
+v = ui.View(frame=(0, 0, 300, 200), background_color='white')
+pv = ui.ProgressView()
+pv.frame = (20, 80, 260, 10)
+pv.progress = 0.7
+pv.progress_tint_color = '#4CD964'
+pv.track_tint_color = '#E5E5EA'
+v.add_subview(pv)
+v.present('sheet')
+```
+
+---
+
+## 18c. Stepper 步进器
+
+### 创建
+
+```python
+st = ui.Stepper()
+st.frame = (100, 100, 94, 29)
+```
+
+### 属性
+
+| 属性 | 类型 | 说明 |
+|------|------|------|
+| `value` | `float` | 当前数值 |
+| `minimum_value` | `float` | 最小值（默认 0） |
+| `maximum_value` | `float` | 最大值（默认 100） |
+| `step_value` | `float` | 步进值（默认 1） |
+| `continuous` | `bool` | 长按是否连续变化 |
+| `wraps` | `bool` | 超出范围时是否循环 |
+| `tint_color` | `str` 或 `tuple` | 着色 |
+| `enabled` | `bool` | 是否可用 |
+
+### 回调
+
+```python
+st.action = lambda sender: print('当前值:', sender.value)
+```
+
+### 示例
+
+```python
+import ui
+
+v = ui.View(frame=(0, 0, 300, 200), background_color='white')
+label = ui.Label(frame=(100, 50, 100, 30), text='0')
+label.alignment = ui.ALIGN_CENTER
+
+st = ui.Stepper()
+st.frame = (103, 100, 94, 29)
+st.minimum_value = 0
+st.maximum_value = 10
+st.step_value = 1
+def on_step(sender):
+    label.text = str(int(sender.value))
+st.action = on_step
+
+v.add_subview(label)
+v.add_subview(st)
+v.present('sheet')
+```
+
+---
+
 ## 19. NavigationView 导航视图
 
 见 [5. present 与展示](#5-present-与展示) 中的 NavigationView 部分。
@@ -844,19 +982,54 @@ cv.render = draw_canvas  # 或继承 CanvasView 重写 draw
 | `path.move_to(x, y)` / `path.line_to(x, y)` | 直线路径 |
 | `path.add_arc(cx, cy, r, start, end, clockwise)` | 圆弧 |
 | `path.add_curve(...)` | 贝塞尔曲线 |
+| `path.add_rect(x, y, w, h)` | 矩形子路径 |
+| `path.add_oval(x, y, w, h)` | 椭圆子路径 |
+| `path.copy()` | 深拷贝路径 |
+| `path.hit_test(x, y)` | 判断点是否在路径内部 |
+| `path.get_bounding_box()` | 返回路径外接矩形 `(x, y, w, h)` |
 | `GState()` | 保存/恢复绘图状态 |
 | `ui.set_blend_mode(mode)` | 混合模式 |
 | `ui.set_shadow(...)` | 阴影 |
 
 ### ImageContext
 
+**方式一：上下文管理器（推荐）**
+
 ```python
 with ui.ImageContext(200, 200) as ctx:
     ui.set_color('blue')
     ui.fill_rect(0, 0, 200, 200)
-    # ... 更多绘图 ...
-    img = ctx.get_image()  # 得到 PIL.Image
+    img = ctx.get_image()  # ui.Image
 ```
+
+**方式二：函数式 API**
+
+```python
+ui.begin_image_context(200, 200)
+ui.set_color('red')
+ui.fill_rect(0, 0, 200, 200)
+img = ui.get_image_from_current_context()  # ui.Image
+ui.end_image_context()
+```
+
+### Image 类
+
+| 入口 | 说明 |
+|------|------|
+| `ui.Image.named(name)` | 内置或捆绑资源名 |
+| `ui.Image.from_data(data)` | 自字节加载 |
+| `ui.Image.from_image_context()` | 获取当前离屏上下文的 Image |
+| `ui.Image(name)` | 等价于 `Image.named(name)` |
+
+| 属性 / 方法 | 说明 |
+|-------------|------|
+| `size` | `(w, h)` |
+| `to_png()` | 返回 PNG `bytes` |
+| `resized(size)` | 缩放副本 |
+| `cropped(rect)` | 裁剪副本 |
+| `crop(rect)` | 裁剪副本 `(x, y, w, h)`，原生实现 |
+| `clip_to_mask(mask)` | 使用另一个 Image 的 alpha 通道裁剪 |
+| `with_rendering_mode(mode)` | 模板/原色渲染模式 |
 
 ---
 
