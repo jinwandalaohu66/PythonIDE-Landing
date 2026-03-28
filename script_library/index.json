@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 34,
-  "updated": "2026-03-28T11:28:25.065Z",
+  "data_version": 35,
+  "updated": "2026-03-28T13:45:54.582Z",
   "announcement": null,
   "categories": [
     {
@@ -867,6 +867,29 @@
       "updated": null,
       "status": "active",
       "lines": 113
+    },
+    {
+      "id": "script_mnadv3th",
+      "name": "猜数字",
+      "name_en": "猜数字",
+      "desc": "iOS风格",
+      "desc_en": "iOS风格",
+      "category": "games",
+      "file": "scripts/games/script_mnadv3th.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "Yahoo",
+      "author_en": "Yahoo",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-03-28",
+      "updated": null,
+      "status": "active",
+      "lines": 188
     }
   ]
 }
