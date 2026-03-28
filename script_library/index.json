@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 31,
-  "updated": "2026-03-27T15:15:38.324Z",
+  "data_version": 32,
+  "updated": "2026-03-28T03:12:59.398Z",
   "announcement": null,
   "categories": [
     {
@@ -798,6 +798,29 @@
       "updated": null,
       "status": "active",
       "lines": 113
+    },
+    {
+      "id": "script_mn9r95l0",
+      "name": "实时电影票房",
+      "name_en": "实时电影票房",
+      "desc": "建议用中号小组件",
+      "desc_en": "建议用中号小组件",
+      "category": "widgets",
+      "file": "scripts/widgets/script_mn9r95l0.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "一只菜鸡",
+      "author_en": "一只菜鸡",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-03-28",
+      "updated": null,
+      "status": "active",
+      "lines": 87
     }
   ]
 }
