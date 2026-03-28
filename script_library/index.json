@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 35,
-  "updated": "2026-03-28T13:45:54.582Z",
+  "data_version": 36,
+  "updated": "2026-03-28T14:56:23.971Z",
   "announcement": null,
   "categories": [
     {
@@ -890,6 +890,29 @@
       "updated": null,
       "status": "active",
       "lines": 188
+    },
+    {
+      "id": "e_mnagdrfc",
+      "name": "蒙电e家电费",
+      "name_en": "蒙电e家电费",
+      "desc": "YHDABH = \"自行抓包修改参数\" ，内蒙古蒙电e家app，外省不用下，建议中号小组件",
+      "desc_en": "YHDABH = \"自行抓包修改参数\" ，内蒙古蒙电e家app，外省不用下，建议中号小组件",
+      "category": "widgets",
+      "file": "scripts/widgets/e_mnagdrfc.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "两只菜鸡",
+      "author_en": "两只菜鸡",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-03-28",
+      "updated": null,
+      "status": "active",
+      "lines": 178
     }
   ]
 }
