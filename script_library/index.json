@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 42,
-  "updated": "2026-03-30T15:16:31.856Z",
+  "data_version": 43,
+  "updated": "2026-03-30T16:52:50Z",
   "announcement": null,
   "categories": [
     {
@@ -1028,6 +1028,30 @@
       "updated": null,
       "status": "active",
       "lines": 290
+    },
+    {
+      "id": "community_高精ip查询工具箱__by_淮季",
+      "name": "高精ip查询工具箱 — by 淮季",
+      "name_en": "高精ip查询工具箱 — by 淮季",
+      "desc": "[投稿] 高精ip查询工具箱 — by 淮季",
+      "desc_en": "[投稿] 高精ip查询工具箱 — by 淮季",
+      "category": "basic",
+      "file": "scripts/basic/ip_mndf9xci.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "社区投稿",
+      "author_en": "社区投稿",
+      "tags": [
+        "community",
+        "basic"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-03-30",
+      "updated": null,
+      "status": "active",
+      "lines": 150
     }
   ]
 }
