@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 44,
-  "updated": "2026-03-31T01:58:02.165Z",
+  "data_version": 45,
+  "updated": "2026-03-31T13:02:36.601Z",
   "announcement": null,
   "categories": [
     {
@@ -1075,6 +1075,29 @@
       "updated": null,
       "status": "active",
       "lines": 650
+    },
+    {
+      "id": "py_mnemmynh",
+      "name": "豆沙包.py",
+      "name_en": "豆沙包.py",
+      "desc": "小学生制作偶尔会有些bug,主题内容就是一个非常弱智的AI",
+      "desc_en": "小学生制作偶尔会有些bug,主题内容就是一个非常弱智的AI",
+      "category": "basic",
+      "file": "scripts/basic/py_mnemmynh.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "潘奕辰",
+      "author_en": "潘奕辰",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-03-31",
+      "updated": null,
+      "status": "active",
+      "lines": 19
     }
   ]
 }
