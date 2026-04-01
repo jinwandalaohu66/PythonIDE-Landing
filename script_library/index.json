@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 47,
-  "updated": "2026-04-01T10:04:19Z",
+  "data_version": 48,
+  "updated": "2026-04-01T10:47:27.654Z",
   "announcement": null,
   "categories": [
     {
@@ -1145,6 +1145,29 @@
       "updated": null,
       "status": "active",
       "lines": 23
+    },
+    {
+      "id": "script_mnfx90ey",
+      "name": "纪念日",
+      "name_en": "纪念日",
+      "desc": "可更改自己所需的纪念日或者倒计时，脚本有注释",
+      "desc_en": "可更改自己所需的纪念日或者倒计时，脚本有注释",
+      "category": "widgets",
+      "file": "scripts/widgets/script_mnfx90ey.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "Silence",
+      "author_en": "Silence",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-01",
+      "updated": null,
+      "status": "active",
+      "lines": 189
     }
   ]
 }
