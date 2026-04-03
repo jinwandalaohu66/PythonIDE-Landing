@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 62,
-  "updated": "2026-04-02T12:49:30.426Z",
+  "data_version": 63,
+  "updated": "2026-04-03T05:58:36.309Z",
   "announcement": null,
   "categories": [
     {
@@ -1236,6 +1236,29 @@
       "updated": null,
       "status": "active",
       "lines": 267
+    },
+    {
+      "id": "ai_mniht95n",
+      "name": "Ai五子棋",
+      "name_en": "Ai五子棋",
+      "desc": "Arduino",
+      "desc_en": "Arduino",
+      "category": "ui",
+      "file": "scripts/ui/ai_mniht95n.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "Yy",
+      "author_en": "Yy",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-03",
+      "updated": null,
+      "status": "active",
+      "lines": 650
     }
   ]
 }
