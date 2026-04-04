@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 70,
-  "updated": "2026-04-04T19:43:26.984Z",
+  "data_version": 71,
+  "updated": "2026-04-04T19:58:20.294Z",
   "announcement": null,
   "categories": [
     {
@@ -1375,6 +1375,29 @@
       "updated": null,
       "status": "active",
       "lines": 78
+    },
+    {
+      "id": "ui_mnkr9090",
+      "name": "网吧模拟器Ui 版",
+      "name_en": "网吧模拟器Ui 版",
+      "desc": "网吧模拟器Ui模块版",
+      "desc_en": "网吧模拟器Ui模块版",
+      "category": "ui",
+      "file": "scripts/ui/ui_mnkr9090.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "今晚打老虎",
+      "author_en": "今晚打老虎",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-04",
+      "updated": null,
+      "status": "active",
+      "lines": 577
     }
   ]
 }
