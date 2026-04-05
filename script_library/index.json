@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 78,
-  "updated": "2026-04-05T04:04:55.799Z",
+  "data_version": 79,
+  "updated": "2026-04-05T04:05:13.290Z",
   "announcement": null,
   "categories": [
     {
@@ -633,29 +633,6 @@
       "updated": null,
       "status": "active",
       "lines": 471
-    },
-    {
-      "id": "guess_number_mn8otc34",
-      "name": "guess_number",
-      "name_en": "guess_number",
-      "desc": "猜数字",
-      "desc_en": "猜数字",
-      "category": "games",
-      "file": "scripts/games/guess_number_mn8otc34.py",
-      "thumbnail": null,
-      "version": 1,
-      "file_type": "py",
-      "author": "Yahoo",
-      "author_en": "Yahoo",
-      "tags": [
-        "community"
-      ],
-      "requires": [],
-      "min_app_version": "1.5.0",
-      "added": "2026-03-27",
-      "updated": null,
-      "status": "removed",
-      "lines": 116
     },
     {
       "id": "community_骚扰电话__by_俄总统",
