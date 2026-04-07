@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 83,
-  "updated": "2026-04-06T22:07:39.462Z",
+  "data_version": 84,
+  "updated": "2026-04-07T11:23:31.644Z",
   "announcement": null,
   "categories": [
     {
@@ -1374,6 +1374,29 @@
       "updated": null,
       "status": "active",
       "lines": 427
+    },
+    {
+      "id": "script_mnoj6hz6",
+      "name": "效果进度条",
+      "name_en": "效果进度条",
+      "desc": "一个模板，进度条模板，使用\\r",
+      "desc_en": "一个模板，进度条模板，使用\\r",
+      "category": "basic",
+      "file": "scripts/basic/script_mnoj6hz6.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "ioo",
+      "author_en": "ioo",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-07",
+      "updated": null,
+      "status": "active",
+      "lines": 26
     }
   ]
 }
