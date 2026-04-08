@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 85,
-  "updated": "2026-04-07T16:37:23Z",
+  "data_version": 86,
+  "updated": "2026-04-08T22:09:17.767Z",
   "announcement": null,
   "categories": [
     {
@@ -1421,6 +1421,29 @@
       "updated": null,
       "status": "active",
       "lines": 29
+    },
+    {
+      "id": "vpn_mnqlott7",
+      "name": "vpn",
+      "name_en": "vpn",
+      "desc": "Proxy",
+      "desc_en": "Proxy",
+      "category": "ui",
+      "file": "scripts/ui/vpn_mnqlott7.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "Viển",
+      "author_en": "Viển",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-08",
+      "updated": null,
+      "status": "active",
+      "lines": 18
     }
   ]
 }
