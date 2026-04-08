@@ -225,6 +225,22 @@ Plan 模式是纯对话模式，适合复杂需求的前期规划：
 | **导入** | 从系统「文件」App 导入任意文件 |
 | **排序** | 拖拽手动排序，或按更新时间自动排序 |
 
+#### ☁️ WebDAV 云盘
+
+| 功能 | 描述 |
+|------|------|
+| **服务器模板** | 坚果云、NextCloud、群晖 NAS 一键配置，支持自定义 WebDAV 服务器 |
+| **文件浏览** | 远程目录面包屑导航、骨架屏加载、搜索过滤、排序 |
+| **在线编辑** | 远程文本文件直接编辑，ETag 冲突检测，防覆盖 |
+| **文件操作** | 上传、下载到工作区、重命名、删除、新建文件夹 |
+| **批量操作** | 多选删除、批量下载、批量移动 |
+| **收藏夹** | 常用目录快速跳转 |
+| **安全** | Keychain 密码存储、自签名证书支持 |
+| **坚果云优化** | 内置频率限制保护，指数退避 |
+
+> 从首页「+」新建菜单进入 WebDAV，添加云盘服务器后即可远程管理文件。  
+> **详细说明：** [WebDAV 功能文档](docs/webdav-module.md)
+
 ---
 
 ### 📄 多格式支持
@@ -264,6 +280,8 @@ Plan 模式是纯对话模式，适合复杂需求的前期规划：
 | **上传 / 下载** | 支持多文件上传（最大 10MB），下载最大 50MB |
 | **创建 / 删除 / 重命名** | 完整文件操作，含确认对话框 |
 | **权限管理** | 查看和修改文件 chmod 权限 |
+
+> **网盘与 WebDAV：** 连接坚果云、NextCloud、群晖等云盘请使用 [WebDAV 功能文档](docs/webdav-module.md)。
 
 #### 一键部署
 
@@ -393,11 +411,24 @@ dialogs.hud_alert("操作完成！")
 
 > **完整 API 文档：** [photos 模块](docs/photos-module.md) · [dialogs 模块](docs/dialogs-module.md) · [clipboard 模块](docs/clipboard-module.md) · [console 模块](docs/console-module.md)
 
+#### 🆕 新增 iOS 原生模块
+
+| 模块 | 功能 | 说明 |
+|------|------|------|
+| **`location`** | GPS 定位 | 经纬度、海拔、指南针、正向/反向地理编码 |
+| **`motion`** | 传感器 | 加速度计、陀螺仪、磁力计、气压计、融合传感器 |
+| **`speech`** | 语音合成 | 文字转语音，多语言，语速/音高/音量控制 |
+| **`biometric`** | 生物认证 | Face ID / Touch ID 安全认证 |
+| **`notification`** | 本地通知 | 定时通知、日历通知、通知管理、角标 |
+| **`vision_helper`** | 高级视觉 | 人脸检测、条码/QR 扫描、图像分类、矩形检测 |
+
+> **完整 API 文档：** [新增原生模块文档](docs/new-native-modules.md)
+
 #### 📐 ui 模块 — 原生界面
 
 Pythonista 兼容的 UI 模块，用 Python 创建原生 iOS 界面（View、Button、Label、TextField、ScrollView、TableView、WebView 等），支持 `present()` 全屏/半屏展示、自绘、load_view 等。
 
-> **完整 API 文档：** [ui 模块完整文档](docs/ui-module.md)
+> **完整 API 文档：** [ui 模块完整文档](docs/ui-module.md) · [appui 声明式 UI](docs/appui-module.md)
 
 #### 🎮 scene 模块 — 2D 游戏引擎
 
