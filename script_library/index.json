@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 90,
-  "updated": "2026-04-14T08:40:10.186Z",
+  "data_version": 91,
+  "updated": "2026-04-14T11:44:03Z",
   "announcement": null,
   "categories": [
     {
@@ -1537,6 +1537,30 @@
       "updated": null,
       "status": "active",
       "lines": 100
+    },
+    {
+      "id": "community_腾讯视频各类免费看密码是qiyue__by_七月",
+      "name": "腾讯视频各类免费看密码是qiyue — by 七月",
+      "name_en": "腾讯视频各类免费看密码是qiyue — by 七月",
+      "desc": "[投稿] 腾讯视频各类免费看密码是qiyue — by 七月",
+      "desc_en": "[投稿] 腾讯视频各类免费看密码是qiyue — by 七月",
+      "category": "ui",
+      "file": "scripts/ui/qiyue_mnyea7xv.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "社区投稿",
+      "author_en": "社区投稿",
+      "tags": [
+        "community",
+        "ui"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-14",
+      "updated": null,
+      "status": "active",
+      "lines": 146
     }
   ]
 }
