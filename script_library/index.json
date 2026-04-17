@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 94,
-  "updated": "2026-04-17T17:06:15Z",
+  "data_version": 95,
+  "updated": "2026-04-17T18:24:51.985Z",
   "announcement": null,
   "categories": [
     {
@@ -1631,6 +1631,29 @@
       "updated": null,
       "status": "active",
       "lines": 144
+    },
+    {
+      "id": "web_crawler_mo38mv63",
+      "name": "web_crawler",
+      "name_en": "web_crawler",
+      "desc": "Name",
+      "desc_en": "Name",
+      "category": "basic",
+      "file": "scripts/basic/web_crawler_mo38mv63.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "Nice",
+      "author_en": "Nice",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-17",
+      "updated": null,
+      "status": "active",
+      "lines": 26
     }
   ]
 }
