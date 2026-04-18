@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 95,
-  "updated": "2026-04-17T18:24:51.985Z",
+  "data_version": 96,
+  "updated": "2026-04-18T08:19:40.482Z",
   "announcement": null,
   "categories": [
     {
@@ -1654,6 +1654,29 @@
       "updated": null,
       "status": "active",
       "lines": 26
+    },
+    {
+      "id": "script_mo42gfjn",
+      "name": "逐字显示：适合于文字游戏",
+      "name_en": "逐字显示：适合于文字游戏",
+      "desc": "/i开头是问句，正常就是显示，修改L列表就可以做到剧情游戏了",
+      "desc_en": "/i开头是问句，正常就是显示，修改L列表就可以做到剧情游戏了",
+      "category": "basic",
+      "file": "scripts/basic/script_mo42gfjn.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "ioo",
+      "author_en": "ioo",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-18",
+      "updated": null,
+      "status": "active",
+      "lines": 17
     }
   ]
 }
