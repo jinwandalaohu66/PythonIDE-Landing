@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 96,
-  "updated": "2026-04-19T17:14:56.130Z",
+  "data_version": 97,
+  "updated": "2026-04-19T20:06:32.227Z",
   "announcement": null,
   "categories": [
     {
@@ -1631,6 +1631,29 @@
       "updated": null,
       "status": "active",
       "lines": 26
+    },
+    {
+      "id": "language_mo675b0p",
+      "name": "Language",
+      "name_en": "Language",
+      "desc": "An Option To Chose and select A default language",
+      "desc_en": "An Option To Chose and select A default language",
+      "category": "other",
+      "file": "scripts/other/language_mo675b0p.py",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "py",
+      "author": "Farvie",
+      "author_en": "Farvie",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-19",
+      "updated": null,
+      "status": "active",
+      "lines": 500
     }
   ]
 }
