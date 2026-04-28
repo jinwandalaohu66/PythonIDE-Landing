@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- Viewport 设置：禁止缩放，适配刘海屏 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- PWA 配置 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#e74c3c">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <title>终极物理骰子 - PWA版</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            touch-action: none;
+            user-select: none; /* 禁止选中文本 */
+            -webkit-user-select: none;
+        }
+        #canvas-container { width: 100%; height: 100vh; display: block; }
+        #ui-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+        }
+        #start-button {
+            padding: 15px 40px;
+            font-size: 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: transform 0.1s;
+        }
+        #start-button:active { transform: translate(-50%, -50%) scale(0.95); }
+        #status-text {
+            margin-top: 20px;
+            color: #ccc;
+            font-size: 14px;
+        }
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+            font-family: sans-serif;
+            font-size: 14px;
+            pointer-events: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="canvas-container"></div>
+<div id="ui-container">
+    <button id="start-button">启动骰子</button>
+    <div id="status-text">推荐添加到主屏幕使用以获得全屏体验</div>
+</div>
+<div id="instructions">倾斜手机 / 快速滑动屏幕摇晃 / 拖拽投掷</div>
+
+<!-- 注册 Service Worker -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                })
+                .catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+        });
+    }
+</script>
+
+<script type="module">
+    import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+    import * as CANNON from 'https://cdn.skypack.dev/cannon-es@0.19.0';
+
+    let scene, camera, renderer, world;
+    let dieMesh, dieBody;
+    const timeStep = 1 / 60;
+    
+    // --- 定义安全边界阈值 ---
+    const RESET_THRESHOLD_Y = -5.0; 
+    const RESET_THRESHOLD_XZ = 15.0;
+
+    // 触摸互动变量
+    let lastTouchPos = null;
+    let lastTouchTime = 0;
+    let touchHistory = []; 
+
+    let sensorEnabled = false;
+    const startButton = document.getElementById('start-button');
+    const uiContainer = document.getElementById('ui-container');
+
+    // --- 使用 Canvas 动态生成点数贴图 ---
+    function createCanvasTexture(number, color, bgColor) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+
+        // 背景
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 边框线
+        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(2, 2, canvas.width-4, canvas.height-4);
+
+        // 画点
+        ctx.fillStyle = color;
+        const radius = 10;
+        const c = canvas.width / 2; // 中心
+        const q = canvas.width / 4; // 四分之一处
+        const tq = q * 3;          // 四分之三处
+
+        function drawDot(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        switch(number) {
+            case 1: drawDot(c, c); break;
+            case 2: drawDot(q, q); drawDot(tq, tq); break;
+            case 3: drawDot(q, q); drawDot(c, c); drawDot(tq, tq); break;
+            case 4: drawDot(q, q); drawDot(tq, q); drawDot(q, tq); drawDot(tq, tq); break;
+            case 5: drawDot(q, q); drawDot(tq, q); drawDot(c, c); drawDot(q, tq); drawDot(tq, tq); break;
+            case 6: drawDot(q, q); drawDot(tq, q); drawDot(q, c); drawDot(tq, c); drawDot(q, tq); drawDot(tq, tq); break;
+        }
+
+        return new THREE.CanvasTexture(canvas);
+    }
+
+    startButton.addEventListener('click', async () => {
+        uiContainer.style.display = 'none';
+        // 尝试请求 iOS 权限
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            try {
+                const state = await DeviceOrientationEvent.requestPermission();
+                if (state === 'granted') enableSensors();
+            } catch (e) { /* 忽略错误 */ }
+        } else {
+             enableSensors();
+        }
+        init();
+    });
+
+    function enableSensors() {
+        sensorEnabled = true;
+        window.addEventListener('deviceorientation', handleOrientation);
+    }
+
+    function init() {
+        // 1. Three.js 设置
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x222222);
+
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 25, 15); 
+        camera.lookAt(0, 0, 0);
+
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // 灯光
+        const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambient);
+        const light = new THREE.DirectionalLight(0xffffff, 0.8);
+        light.position.set(10, 30, 10);
+        light.castShadow = true;
+        light.shadow.camera.top = 20;    light.shadow.camera.bottom = -20;
+        light.shadow.camera.left = -20;  light.shadow.camera.right = 20;
+        light.shadow.mapSize.set(2048, 2048);
+        scene.add(light);
+
+        // 2. Cannon.js 物理世界
+        world = new CANNON.World();
+        world.gravity.set(0, -30, 0); 
+        world.broadphase = new CANNON.NaiveBroadphase();
+        world.solver.iterations = 20;
+
+        const matPhys = new CANNON.Material();
+        const contactMat = new CANNON.ContactMaterial(matPhys, matPhys, {
+            friction: 0.4, restitution: 0.5
+        });
+        world.addContactMaterial(contactMat);
+
+        // 3. 创建可视化的骰子托盘
+        createDiceTray(matPhys);
+
+        // 4. 创建带点数的骰子
+        createDie(matPhys);
+
+        // 5. 事件监听
+        window.addEventListener('resize', onWindowResize);
+        document.addEventListener('touchstart', onTouchStart, { passive: false });
+        document.addEventListener('touchmove', onTouchMove, { passive: false });
+        document.addEventListener('touchend', onTouchEnd, { passive: false });
+
+        animate();
+    }
+
+    function createDiceTray(materialPhys) {
+        const traySize = 14;
+        const wallHeight = 4;
+        const wallThickness = 1;
+        const floorColor = 0x3d8c40; 
+        const wallColor = 0x5c3a21;  
+
+        function createPart(size, pos, rot, color, isFloor = false) {
+            const geo = new THREE.BoxGeometry(size.x, size.y, size.z);
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: color, 
+                roughness: isFloor ? 0.9 : 0.6,
+                metalness: 0.1
+            });
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.position.copy(pos);
+            if (rot) mesh.rotation.setFromVector3(rot);
+            mesh.receiveShadow = true;
+            scene.add(mesh);
+
+            const shape = new CANNON.Box(new CANNON.Vec3(size.x/2, size.y/2, size.z/2));
+            const body = new CANNON.Body({ mass: 0, material: materialPhys });
+            body.addShape(shape);
+            body.position.copy(pos);
+            if (rot) body.quaternion.setFromEuler(rot.x, rot.y, rot.z);
+            world.addBody(body);
+        }
+
+        createPart(
+            new THREE.Vector3(traySize, wallThickness, traySize),
+            new THREE.Vector3(0, -wallThickness/2, 0),
+            null, floorColor, true
+        );
+        createPart(
+            new THREE.Vector3(traySize + wallThickness*2, wallHeight, wallThickness),
+            new THREE.Vector3(0, wallHeight/2, -traySize/2 - wallThickness/2),
+            null, wallColor
+        );
+        createPart(
+            new THREE.Vector3(traySize + wallThickness*2, wallHeight, wallThickness),
+            new THREE.Vector3(0, wallHeight/2, traySize/2 + wallThickness/2),
+            null, wallColor
+        );
+        createPart(
+            new THREE.Vector3(wallThickness, wallHeight, traySize),
+            new THREE.Vector3(-traySize/2 - wallThickness/2, wallHeight/2, 0),
+            null, wallColor
+        );
+        createPart(
+            new THREE.Vector3(wallThickness, wallHeight, traySize),
+            new THREE.Vector3(traySize/2 + wallThickness/2, wallHeight/2, 0),
+            null, wallColor
+        );
+    }
+
+    function createDie(materialPhys) {
+        const size = 2;
+        const geometry = new THREE.BoxGeometry(size, size, size);
+
+        const dotColor = '#000000';
+        const dieColor = '#eeeeee';
+        
+        const materials = [
+            new THREE.MeshStandardMaterial({ map: createCanvasTexture(2, dotColor, dieColor) }), 
+            new THREE.MeshStandardMaterial({ map: createCanvasTexture(5, dotColor, dieColor) }), 
+            new THREE.MeshStandardMaterial({ map: createCanvasTexture(1, dotColor, dieColor) }), 
+            new THREE.MeshStandardMaterial({ map: createCanvasTexture(6, dotColor, dieColor) }), 
+            new THREE.MeshStandardMaterial({ map: createCanvasTexture(3, dotColor, dieColor) }), 
+            new THREE.MeshStandardMaterial({ map: createCanvasTexture(4, dotColor, dieColor) }) 
+        ];
+        
+        materials.forEach(m => { m.roughness = 0.2; m.metalness = 0.0; });
+
+        dieMesh = new THREE.Mesh(geometry, materials);
+        dieMesh.position.y = 5;
+        dieMesh.castShadow = true;
+        scene.add(dieMesh);
+
+        const shape = new CANNON.Box(new CANNON.Vec3(size/2, size/2, size/2));
+        dieBody = new CANNON.Body({ mass: 5, shape: shape, material: materialPhys });
+        dieBody.position.set(0, 5, 0);
+        dieBody.angularVelocity.set(Math.random()*10, Math.random()*10, Math.random()*10);
+        dieBody.linearDamping = 0.1;
+        dieBody.angularDamping = 0.1;
+        world.addBody(dieBody);
+    }
+
+    function handleOrientation(event) {
+        if (!sensorEnabled || !dieBody) return;
+        const sensitivity = 1.5;
+        const maxTilt = 50; 
+        let beta = Math.max(-maxTilt, Math.min(maxTilt, event.beta || 0)); 
+        let gamma = Math.max(-maxTilt, Math.min(maxTilt, event.gamma || 0)); 
+
+        world.gravity.x = gamma * sensitivity;
+        world.gravity.z = beta * sensitivity;
+        world.gravity.y = -30 + Math.abs(beta/maxTilt)*10 + Math.abs(gamma/maxTilt)*10;
+    }
+
+    function onTouchStart(event) {
+        event.preventDefault();
+        const touch = event.touches[0];
+        lastTouchPos = { x: touch.clientX, y: touch.clientY };
+        lastTouchTime = performance.now();
+        touchHistory = []; 
+        if(dieBody.position.y < 3) dieBody.velocity.y += 2;
+    }
+
+    function onTouchMove(event) {
+        event.preventDefault();
+        if(!lastTouchPos) return;
+        const touch = event.touches[0];
+        const now = performance.now();
+        const dx = touch.clientX - lastTouchPos.x;
+        const dy = touch.clientY - lastTouchPos.y;
+        const dt = now - lastTouchTime;
+        if (dt > 10) {
+            touchHistory.push({ dx, dy, dt });
+            if (touchHistory.length > 10) touchHistory.shift();
+            detectShakeGesture();
+        }
+        lastTouchPos = { x: touch.clientX, y: touch.clientY };
+        lastTouchTime = now;
+    }
+
+    function detectShakeGesture() {
+        if (touchHistory.length < 5) return;
+        let reversals = 0;
+        let totalSpeed = 0;
+        for(let i = 1; i < touchHistory.length; i++) {
+            if (Math.sign(touchHistory[i].dx) !== Math.sign(touchHistory[i-1].dx) && Math.abs(touchHistory[i].dx) > 5) reversals++;
+            if (Math.sign(touchHistory[i].dy) !== Math.sign(touchHistory[i-1].dy) && Math.abs(touchHistory[i].dy) > 5) reversals++;
+            totalSpeed += Math.abs(touchHistory[i].dx) + Math.abs(touchHistory[i].dy);
+        }
+        if (reversals >= 3 && totalSpeed > 150) {
+            shakeDie();
+            touchHistory = []; 
+        }
+    }
+
+    function shakeDie() {
+        dieBody.wakeUp();
+        const force = 25;
+        const torque = 50;
+        dieBody.velocity.set(
+            (Math.random()-0.5)*force, 
+            Math.random()*force*0.5 + 10, 
+            (Math.random()-0.5)*force
+        );
+        dieBody.angularVelocity.set(
+            (Math.random()-0.5)*torque, 
+            (Math.random()-0.5)*torque, 
+            (Math.random()-0.5)*torque
+        );
+    }
+
+    function onTouchEnd(event) {
+        event.preventDefault();
+        if (!lastTouchPos || !dieBody) return;
+        const now = performance.now();
+        const dt = now - lastTouchTime;
+        if (dt < 200 && touchHistory.length > 0) {
+             const lastMove = touchHistory[touchHistory.length-1];
+             const throwForce = 1.5;
+             dieBody.applyImpulse(new CANNON.Vec3(
+                 lastMove.dx * throwForce, 
+                 Math.abs(lastMove.dy + lastMove.dx) * 0.5 + 10, 
+                 lastMove.dy * throwForce * 1.5 
+             ), dieBody.position);
+             dieBody.angularVelocity.vadd(new CANNON.Vec3(Math.random()*10, Math.random()*10, Math.random()*10));
+        }
+        lastTouchPos = null;
+        touchHistory = [];
+    }
+
+    function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        world.step(timeStep);
+
+        if (dieMesh && dieBody) {
+            dieMesh.position.copy(dieBody.position);
+            dieMesh.quaternion.copy(dieBody.quaternion);
+
+            const pos = dieBody.position;
+            if (pos.y < RESET_THRESHOLD_Y || Math.abs(pos.x) > RESET_THRESHOLD_XZ || Math.abs(pos.z) > RESET_THRESHOLD_XZ) {
+                dieBody.position.set(0, 5, 0);
+                dieBody.velocity.set(0, 0, 0);
+                dieBody.angularVelocity.set(0, 0, 0);
+                dieBody.angularVelocity.set(Math.random(), Math.random(), Math.random());
+                dieBody.wakeUp();
+            }
+        }
+        renderer.render(scene, camera);
+    }
+</script>
+</body>
+</html>
+
