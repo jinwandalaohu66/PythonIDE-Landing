@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "data_version": 107,
-  "updated": "2026-04-28T13:39:10.974Z",
+  "data_version": 108,
+  "updated": "2026-04-28T14:32:42.423Z",
   "announcement": null,
   "categories": [
     {
@@ -1816,6 +1816,29 @@
       "updated": null,
       "status": "active",
       "lines": 159
+    },
+    {
+      "id": "script_moiq6nby",
+      "name": "骰子",
+      "name_en": "骰子",
+      "desc": "一个真实的骰子",
+      "desc_en": "一个真实的骰子",
+      "category": "ui",
+      "file": "scripts/ui/script_moiq6nby.html",
+      "thumbnail": null,
+      "version": 1,
+      "file_type": "html",
+      "author": "dreamingbob",
+      "author_en": "dreamingbob",
+      "tags": [
+        "community"
+      ],
+      "requires": [],
+      "min_app_version": "1.5.0",
+      "added": "2026-04-28",
+      "updated": null,
+      "status": "active",
+      "lines": 425
     }
   ]
 }
